@@ -233,8 +233,7 @@
                                 style="margin-right:5px" 
                                 type="text" 
                                 aria-label="50%" 
-                                class="form-control" 
-                                value="50"
+                                class="form-control"
                                 name="productSale"
                                 onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
                             <span class="input-group-text">%</span>

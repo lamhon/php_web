@@ -198,23 +198,23 @@
                 <div class="product__item">
                     <div class="product__item__pic set-bg" data-setbg="../../public/<?php echo $result['img'] ?>">
                         <?php
-                            if($result['categoryid'] == 2){
+                            if($result['categoryid'] == 1){
                         ?>
                         <div class="label trangtri">Decorate</div>
                         <?php
-                            }else if($result['categoryid'] == 3){
+                            }else if($result['categoryid'] == 2){
                         ?>
                         <div class="label postcard">Postcard</div>
                         <?php
-                            }else if($result['categoryid'] == 4){
+                            }else if($result['categoryid'] == 3){
                         ?>
                         <div class="label quanao">Clothes</div>
                         <?php
-                            }else if($result['categoryid'] == 5){
+                            }else if($result['categoryid'] == 4){
                         ?>
                         <div class="label giadung">Houseware</div>
                         <?php
-                            }else if($result['categoryid'] == 6){
+                            }else if($result['categoryid'] == 5){
                         ?>
                         <div class="label sale">Sale</div>
                         <?php

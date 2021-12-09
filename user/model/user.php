@@ -80,6 +80,10 @@
         }
 
         //Setter
+        public function set_id($id){
+            $this->id = $id;
+        }
+
         public function set_username($username){
             $this->username = $username;
         }

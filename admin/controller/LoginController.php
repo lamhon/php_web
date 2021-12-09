@@ -26,7 +26,7 @@
                 $alert = "User and password must be not empty";
                 return $alert;
             }else{
-                $query = "SELECT * FROM tbl_admin WHERE  username = '$username' AND pwd = '$userpass'";
+                $query = "SELECT * FROM tbl_admin WHERE username = '$username' AND pwd = '$userpass'";
                 $result = $this->db->select($query);
 
                 if($result != false){

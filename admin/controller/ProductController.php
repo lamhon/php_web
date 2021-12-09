@@ -19,12 +19,15 @@
             }else{
                 $productName = mysqli_real_escape_string($this->db::$link, $data['productName']);
                 $productPrice = floatval($this->currencyFormat(mysqli_real_escape_string($this->db::$link, $data['productPrice'])));
-                $productSale = mysqli_real_escape_string($this->db::$link, $data['productSale']);
+                $productSale = floatval(mysqli_real_escape_string($this->db::$link, $data['productSale']));
                 $productCategory = mysqli_real_escape_string($this->db::$link, $data['productCategory']);
                 $productInformation = mysqli_real_escape_string($this->db::$link, $data['productInformation']);
                 $productDescription = mysqli_real_escape_string($this->db::$link, $data['productDescription']);
-                $productQuantity = mysqli_real_escape_string($this->db::$link, $data['productQuantity']);
+                $productQuantity = intval(mysqli_real_escape_string($this->db::$link, $data['productQuantity']));
 
+                if($productSale == ''){
+                    $productSale = 0;
+                }
                 $permited = array('jpg', 'jpeg', 'png', 'gif');
                 $file_name = $_FILES['image']['name'];
                 $file_size = $_FILES['image']['size'];
@@ -35,7 +38,7 @@
                 $unique_image = substr(md5(time()), 0, 10). '.'.$file_ext;
                 $uploaded_image = "../../public/".$unique_image;
 
-                if($productName == '' || $productPrice == '' || $productSale == '' || 
+                if($productName == '' || $productPrice == '' ||
                     $productCategory == '' || $productInformation == '' || $productDescription == '' || 
                     $productQuantity == '' || $file_name == ''){
                     $alert = '<div class="alert alert-danger">Field must be not empty</div>';

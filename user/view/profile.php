@@ -19,17 +19,15 @@
                                 $_POST['userLastname'],
                                 $_POST['userEmail']);
         $setUser->set_sex($_POST['userSex']);
-
-        $birthday = strtotime($_POST['userBirthdayDay'].'/'.$_POST['userBirthdayMonth'].'/'.$_POST['userBirthdayYear']);
+        $setUser->set_id(Session::get('userId'));
+        $birthday = strtotime($_POST['userBirthdayMonth'].'/'.$_POST['userBirthdayDay'].'/'.$_POST['userBirthdayYear']);
         $formatdate = date('Y-m-d', $birthday);
         $setUser->set_birthday($formatdate);
         $setUser->set_email($_POST['userEmail']);
         $setUser->set_phone($_POST['userPhone']);
         $setUser->set_address($_POST['userAddress']);
 
-        $urBirth =  $formatdate;
-
-        //$updateProduct = $product->update_product($setproduct, $_FILES);
+        $updateInfo = $userCon->updateInfor($setUser);
     }
 ?>
 <!DOCTYPE html>
@@ -109,9 +107,10 @@
         <p>Manage your information and security</p>
         <hr>
         <?php
-            if(isset($urBirth)){ 
+            if(isset($updateInfo)){ 
                 //parse_str($urBirth, $res);
-                echo ($urBirth);
+                echo ($updateInfo);
+                $user = $userCon->getUser(Session::get('userId'));
             }
         ?>
         <form method="POST" action="profile.php">
@@ -210,22 +209,20 @@
                     <?php
                         }else {
                     ?>
-                        <option value="<?php
+                            <option value="<?php
                                             $timestamp = strtotime($result['birthday']);
-                                            $day = date('D', $timestamp);
+                                            $day = date('d', $timestamp);
                                             echo $day
                                         ?>"><?php echo $day ?></option>
                     <?php
                             for($i = 1; $i < 32; $i++){
-                                if($i != $result['birthday']){
+                                if($i != $day){
                     ?>
-                        <option value="<?php echo $i ?>"><?php echo $i ?></option>
+                                    <option value="<?php echo $i ?>"><?php echo $i ?></option>
                     <?php
                                 }
                             }
                     ?>
-                        <option value="1">Male</option>
-                        <option value="0">Female</option>
                     <?php
                         }
                     ?>
@@ -245,15 +242,22 @@
                             }
                     ?>
                     <?php
-                        }else if($result['birthday'] == 1){
-                    ?>
-                    <option value="1">Male</option>
-                    <option value="0">Female</option>
-                    <?php
                         }else{
                     ?>
-                    <option value="0">Female</option>
-                    <option value="1">Male</option>
+                            <option value="<?php
+                                            $timestamp = strtotime($result['birthday']);
+                                            $month = date('m', $timestamp);
+                                            echo $month;
+                                        ?>"><?php echo 'Month '.$month ?></option>
+                            <?php
+                                for($i = 1; $i < 13; $i++){
+                                    if($i != $month){
+                            ?>
+                                <option value="<?php echo $i ?>"><?php echo 'Month '.$i ?></option>
+                            <?php
+                                    }
+                                }
+                            ?>
                     <?php
                         }
                     ?>
@@ -274,15 +278,22 @@
                             }
                         ?>
                     <?php
-                        }else if($result['birthday'] == 1){
-                    ?>
-                    <option value="1">Male</option>
-                    <option value="0">Female</option>
-                    <?php
                         }else{
                     ?>
-                    <option value="0">Female</option>
-                    <option value="1">Male</option>
+                            <option value="<?php
+                                $timestamp = strtotime($result['birthday']);
+                                $year = date('Y', $timestamp);
+                                echo $year;
+                            ?>"><?php echo $year ?></option>
+                            <?php
+                                for($i = $date['year']; $i > 1909; $i--){
+                                    if($i != $year){
+                            ?>
+                                <option value="<?php echo $i ?>"><?php echo $i ?></option>
+                            <?php
+                                    }
+                                }
+                            ?>
                     <?php
                         }
                     ?>
@@ -319,7 +330,7 @@
                 <input  
                     type="text" 
                     class="form-control"
-                    value="<?php echo $result['address'] ?>"
+                    value="<?php echo $result['uaddress'] ?>"
                     aria-label="Username" 
                     aria-describedby="basic-addon1"
                     name="userAddress"
