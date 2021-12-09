@@ -1,29 +1,23 @@
-<!DOCTYPE html>
-<html lang="zxx">
+<?php
+    include '../view/layouts/content/session.php';
+
+    include '../controller/ProductController.php';
+    include '../controller/CategoryController.php';
+?>
 
 <?php
-    $dbServerName = 'localhost';
-    $dbUser = 'sor';
-    $dbPass = '123456';
-    $dbName = 'phpweb';
+    $productCon = new ProductController();
+    $cateCon = new CategoryController();
 
-    //connect to DB
-    $conn = mysqli_connect($dbServerName, $dbUser, $dbPass, $dbName);
-
-    //check connection
-    if(!$conn){
-        echo("Connection failed: " .mysqli_connect_error());
+    if(!isset($_GET['productid']) || ($_GET['productid'] == NULL )){
+        echo "<script>window.location = 'index.php'</script>";
     }else{
-        //echo "Connect DB successfully";
+        $id = $_GET['productid'];
     }
-
-    //get all user accounts
-    $sql = 'SELECT * FROM useraccount';
-    $result = mysqli_query($conn, $sql);
-    $users = mysqli_fetch_all($result);
-
-    //print_r($users);
 ?>
+
+<!DOCTYPE html>
+<html lang="zxx">
 
 <head>
     <meta charset="UTF-8">
@@ -74,16 +68,32 @@
     ?>
     <!-- Header Section End -->
 
+
+    <?php
+        $getProduct = $productCon->getProductById($id);
+        if($getProduct){
+            while($result = $getProduct->fetch_assoc()){
+    ?>
     <!-- body -->
         <!-- Breadcrumb Begin -->
-        <div class="breadcrumb-option">
+    <div class="breadcrumb-option">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="breadcrumb__links">
-                        <a href="./index.html"><i class="fa fa-home"></i> Home</a>
-                        <a href="#">Women’s </a>
-                        <span>Essential structured blazer</span>
+                        <a href="index.php"><i class="fa fa-home"></i> Home</a>
+                        <a href="#">
+                            <?php
+                                $getCate = $cateCon->getCategory($result['categoryid']);
+                                if($getCate){
+                                    while($cateName = $getCate->fetch_assoc()){
+                                        $name = $cateName['categoryname'];
+                                        echo $name.' ';
+                                    }
+                                }
+                            ?>
+                        </a>
+                        <span><?php echo $result['productname'] ?></span>
                     </div>
                 </div>
             </div>
@@ -97,33 +107,29 @@
             <div class="row">
                 <div class="col-lg-6">
                     <div class="product__details__pic">
-                        <div class="product__details__pic__left product__thumb nice-scroll">
-                            <a class="pt active" href="#product-1">
-                                <img src="./assets/img/product/details/thumb-1.jpg" alt="">
-                                </a>
-                            <a class="pt" href="#product-2">
-                                <img src="./assets/img/product/details/thumb-2.jpg" alt="">
-                            </a>
-                            <a class="pt" href="#product-3">
-                                <img src="./assets/img/product/details/thumb-3.jpg" alt="">
-                            </a>
-                            <a class="pt" href="#product-4">
-                                <img src="./assets/img/product/details/thumb-4.jpg" alt="">
-                            </a>
-                        </div>
                         <div class="product__details__slider__content">
                             <div class="product__details__pic__slider owl-carousel">
-                                <img data-hash="product-1" class="product__big__img" src="./assets/img/product/details/product-1.jpg" alt="">
-                                <img data-hash="product-2" class="product__big__img" src="./assets/img/product/details/product-3.jpg" alt="">
-                                <img data-hash="product-3" class="product__big__img" src="./assets/img/product/details/product-2.jpg" alt="">
-                                <img data-hash="product-4" class="product__big__img" src="./assets/img/product/details/product-4.jpg" alt="">
+                                <img data-hash="product-1" class="product__big__img" src="../../public/<?php echo $result['img'] ?>" alt="">
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <div class="product__details__text">
-                        <h3>Essential structured blazer <span>Brand: SKMEIMore Men Watches from SKMEI</span></h3>
+                        <h3>
+                            <?php echo $result['productname'] ?>
+                            <span>
+                                <?php
+                                    $getCate = $cateCon->getCategory($result['categoryid']);
+                                    if($getCate){
+                                        while($cateName = $getCate->fetch_assoc()){
+                                            $name = $cateName['categoryname'];
+                                            echo $name.' ';
+                                        }
+                                    }
+                                ?>
+                            </span>
+                        </h3>
                         <div class="rating">
                             <i class="fa fa-star"></i>
                             <i class="fa fa-star"></i>
@@ -132,35 +138,80 @@
                             <i class="fa fa-star"></i>
                             <span>( 138 reviews )</span>
                         </div>
-                        <div class="product__details__price">$ 75.0 <span>$ 83.0</span></div>
-                        <p>Nemo enim ipsam voluptatem quia aspernatur aut odit aut loret fugit, sed quia consequuntur
-                        magni lores eos qui ratione voluptatem sequi nesciunt.</p>
+                        <?php
+                            if($result['sale'] != 0){
+                        ?>
+                            <div class="product__details__price">
+                                <script>
+                                    let price = new Number(<?php echo $price = ($result['price'] - ($result['price'] * $result['sale'])/100) ?>);
+                                    var myObj = {
+                                        style: "currency",
+                                        currency: "VND"
+                                    }
+                                            
+                                    document.write(price.toLocaleString("vi-VN", myObj));
+                                </script>
+                                <span>
+                                    <script>
+                                        let oldPrice = new Number(<?php echo $result['price'] ?>);
+                                        var myObj = {
+                                            style: "currency",
+                                            currency: "VND"
+                                        }
+
+                                        document.write(oldPrice.toLocaleString("vi-VN", myObj));
+                                    </script>
+                                </span>
+                            </div>
+                        <?php
+                            }else{
+                        ?>
+                            <div class="product__details__price">
+                                <script>
+                                        let price = new Number(<?php echo $result['price'] ?>);
+                                        var myObj = {
+                                            style: "currency",
+                                            currency: "VND"
+                                        }
+
+                                        document.write(price.toLocaleString("vi-VN", myObj));
+                                </script>
+                            </div>
+                        <?php
+                            }
+                        ?>
+                        
+                        <p><?php echo $result['info'] ?></p>
                         <div class="product__details__button">
                             <div class="quantity">
                                 <span>Quantity:</span>
                                 <div class="pro-qty">
-                                    <input type="text" value="1">
+                                    <input 
+                                        type="text" 
+                                        value="1"
+                                        onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                                        >
                                 </div>
                             </div>
                             <a href="#" class="cart-btn"><span class="icon_bag_alt"></span> Add to cart</a>
-                            <ul>
+                            <!-- <ul>
                                 <li><a href="#"><span class="icon_heart_alt"></span></a></li>
                                 <li><a href="#"><span class="icon_adjust-horiz"></span></a></li>
-                            </ul>
+                            </ul> -->
                         </div>
                         <div class="product__details__widget">
                             <ul>
                                 <li>
-                                    <span>Availability:</span>
+                                    <span>Stock:</span>
                                     <div class="stock__checkbox">
-                                        <label for="stockin">
-                                            In Stock
-                                            <input type="checkbox" id="stockin">
-                                            <span class="checkmark"></span>
+                                        <label>
+                                            <?php echo $result['quantity'] ?>
+                                            <!-- <input type="checkbox" id="stockin">
+                                            <span class="checkmark"></span> -->
                                         </label>
                                     </div>
                                 </li>
-                                <li>
+                                <!-- <li>
                                     <span>Available color:</span>
                                     <div class="color__checkbox">
                                         <label for="red">
@@ -176,8 +227,8 @@
                                             <span class="checkmark grey-bg"></span>
                                         </label>
                                     </div>
-                                </li>
-                                <li>
+                                </li> -->
+                                <!-- <li>
                                     <span>Available size:</span>
                                     <div class="size__btn">
                                         <label for="xs-btn" class="active">
@@ -197,11 +248,11 @@
                                             l
                                         </label>
                                     </div>
-                                </li>
-                                <li>
+                                </li> -->
+                                <!-- <li>
                                     <span>Promotions:</span>
                                     <p>Free shipping</p>
-                                </li>
+                                </li> -->
                             </ul>
                         </div>
                     </div>
@@ -222,16 +273,7 @@
                         <div class="tab-content">
                             <div class="tab-pane active" id="tabs-1" role="tabpanel">
                                 <h6>Description</h6>
-                                <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed
-                                    quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt loret.
-                                    Neque porro lorem quisquam est, qui dolorem ipsum quia dolor si. Nemo enim ipsam
-                                    voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed quia ipsu
-                                    consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Nulla
-                                consequat massa quis enim.</p>
-                                <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
-                                    dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes,
-                                    nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium
-                                quis, sem.</p>
+                                <p><?php echo $result['descript'] ?></p>
                             </div>
                             <div class="tab-pane" id="tabs-2" role="tabpanel">
                                 <h6>Specification</h6>
@@ -263,6 +305,10 @@
                     </div>
                 </div>
             </div>
+            <?php
+                    }
+                }
+            ?>
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <div class="related__title">

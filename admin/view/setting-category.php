@@ -102,8 +102,6 @@
                     if($getCate){
                         while($result = $getCate->fetch_assoc()){
                 ?>
-
-                
                 
                 <form method="POST">
                     <div class="container-mock">

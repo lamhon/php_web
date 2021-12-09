@@ -23,6 +23,12 @@
             return $result;
         }
 
+        public function getProductById($id){
+            $query = "SELECT * FROM tbl_product WHERE id = '$id' AND stt = 1";
+            $result = $this->db->select($query);
+            return $result;
+        }
+
         public function currencyFormat($price){
             $result = str_replace(array(','), '', $price);
             return $result;
