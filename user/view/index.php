@@ -5,6 +5,31 @@
 <?php
     include '../controller/CategoryController.php';
     include '../controller/ProductController.php';
+    include '../controller/CartController.php';
+
+    include '../model/cart.php';
+?>
+
+<?php
+    if(isset($_GET['add-cart'])){
+        if(Session::get('userId') != null){
+            $id = $_GET['add-cart'];
+
+            $productCon = new ProductController();
+            $productRes = $productCon->getProductById($id);
+            if($productRes){
+                while($res = $productRes->fetch_assoc()){
+                    $cart = new Cart(Session::get('userId'), $id, 1);
+    
+                    $cartCon = new CartController();
+                    $cartCon->insertItem($cart);
+                }
+            }
+        }else{
+            header("Location:login.php");
+        }
+        
+    }
 ?>
 
 
@@ -223,8 +248,8 @@
                         
                         <ul class="product__hover">
                             <li><a href="../../public/<?php echo $result['img'] ?>" class="image-popup"><span class="arrow_expand"></span></a></li>
-                            <li><a href="#"><span class="icon_heart_alt"></span></a></li>
-                            <li><a href="?p"><span class="icon_bag_alt"></span></a></li>
+                            <!-- <li><a href="#"><span class="icon_heart_alt"></span></a></li> -->
+                            <li><a href="?add-cart=<?php echo $result['id'] ?>"><span class="icon_bag_alt"></span></a></li>
                         </ul>
                     </div>
                     <div class="product__item__text">

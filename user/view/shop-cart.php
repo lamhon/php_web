@@ -1,29 +1,45 @@
-<!DOCTYPE html>
-<html lang="zxx">
-
 <?php
-    $dbServerName = 'localhost';
-    $dbUser = 'sor';
-    $dbPass = '123456';
-    $dbName = 'phpweb';
+    include '../view/layouts/content/session.php';
+?>
 
-    //connect to DB
-    $conn = mysqli_connect($dbServerName, $dbUser, $dbPass, $dbName);
+<?php 
+    include '../controller/ProductController.php';
+    include '../controller/CartController.php';
 
-    //check connection
-    if(!$conn){
-        echo("Connection failed: " .mysqli_connect_error());
-    }else{
-        //echo "Connect DB successfully";
+    include '../model/cart.php';
+?>
+<?php
+    $cartCon = new CartController();
+    $productCon = new ProductController();
+
+    $sub = 0;
+    $total = 0;
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST'){
+        $cartlst = $cartCon->getCart(Session::get('userId'));
+
+        if($cartlst){
+            while($result = $cartlst->fetch_assoc()){
+                $idQuan = "quantity".$result["idproduct"];
+
+                $cart = new Cart(Session::get('userId'), $result['idproduct'], $_POST[$idQuan]);
+
+                if($_POST[$idQuan] > 0){
+                    $cartCon->updateItem($cart);
+                }else{
+                    $cartCon->deleteItem($cart);
+                }
+            }
+        }
     }
 
-    //get all user accounts
-    $sql = 'SELECT * FROM useraccount';
-    $result = mysqli_query($conn, $sql);
-    $users = mysqli_fetch_all($result);
-
-    //print_r($users);
+    if(isset($_GET['remove'])){
+        $cart = new Cart(Session::get('userId'), $_GET['remove'], 0);
+        $cartCon->deleteItem($cart);
+    }
 ?>
+<!DOCTYPE html>
+<html lang="zxx">
 
 <head>
     <meta charset="UTF-8">
@@ -36,6 +52,13 @@
     <?php
         include './layouts/cssfile.php';
     ?>
+
+    <style>
+        td img{
+            width: 125px;
+            height: 150px;
+        }
+    </style>
 </head>
 
 <body>
@@ -76,153 +99,118 @@
 
     <!-- body -->
         <!-- Shop Cart Section Begin -->
-        <section class="shop-cart spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="shop__cart__table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th>Total</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="cart__product__item">
-                                        <img src="./assets/img/shop-cart/cp-1.jpg" alt="">
-                                        <div class="cart__product__item__title">
-                                            <h6>Chain bucket bag</h6>
-                                            <div class="rating">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="cart__price">$ 150.0</td>
-                                    <td class="cart__quantity">
-                                        <div class="pro-qty">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </td>
-                                    <td class="cart__total">$ 300.0</td>
-                                    <td class="cart__close"><span class="icon_close"></span></td>
-                                </tr>
-                                <tr>
-                                    <td class="cart__product__item">
-                                        <img src="./assets//img/shop-cart/cp-2.jpg" alt="">
-                                        <div class="cart__product__item__title">
-                                            <h6>Zip-pockets pebbled tote briefcase</h6>
-                                            <div class="rating">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="cart__price">$ 170.0</td>
-                                    <td class="cart__quantity">
-                                        <div class="pro-qty">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </td>
-                                    <td class="cart__total">$ 170.0</td>
-                                    <td class="cart__close"><span class="icon_close"></span></td>
-                                </tr>
-                                <tr>
-                                    <td class="cart__product__item">
-                                        <img src="./assets//img/shop-cart/cp-3.jpg" alt="">
-                                        <div class="cart__product__item__title">
-                                            <h6>Black jean</h6>
-                                            <div class="rating">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="cart__price">$ 85.0</td>
-                                    <td class="cart__quantity">
-                                        <div class="pro-qty">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </td>
-                                    <td class="cart__total">$ 170.0</td>
-                                    <td class="cart__close"><span class="icon_close"></span></td>
-                                </tr>
-                                <tr>
-                                    <td class="cart__product__item">
-                                        <img src="./assets//img/shop-cart/cp-4.jpg" alt="">
-                                        <div class="cart__product__item__title">
-                                            <h6>Cotton Shirt</h6>
-                                            <div class="rating">
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                                <i class="fa fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="cart__price">$ 55.0</td>
-                                    <td class="cart__quantity">
-                                        <div class="pro-qty">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </td>
-                                    <td class="cart__total">$ 110.0</td>
-                                    <td class="cart__close"><span class="icon_close"></span></td>
-                                </tr>
-                            </tbody>
-                        </table>
+    <section class="shop-cart spad">
+        <form id="my_form" method="post" action="">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="shop__cart__table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                        $cartList = $cartCon->getCart(Session::get('userId'));
+                                        if($cartList){
+                                            while($res = $cartList->fetch_assoc()){
+                                                $product = $productCon->getProductById($res['idproduct']);
+                                                if($product){
+                                                    while($result = $product->fetch_assoc()){
+                                        ?>
+                                                        <tr>
+                                                            <td class="cart__product__item">
+                                                                <img src="../../public/<?php echo $result['img'] ?>" alt="">
+                                                                <div class="cart__product__item__title">
+                                                                    <h6><?php echo $result['productname'] ?></h6>
+                                                                    <div class="rating">
+                                                                        <p name="id<?php echo $result['id'] ?>"><?php echo $result['id'] ?></p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="cart__price">
+                                                                <?php
+                                                                    $sub += $result['price'];
+                                                                    echo $result['price'];
+                                                                ?>
+                                                            </td>
+                                                            <td class="cart__quantity">
+                                                                <div class="pro-qty">
+                                                                    <input 
+                                                                        type="text" 
+                                                                        value="<?php
+                                                                                    $total += $result['price']*$res['quantity'];
+                                                                                    echo $res['quantity'];
+                                                                                ?>"
+                                                                        onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                                                                        name="<?php echo "quantity".$result['id'] ?>"">
+                                                                </div>
+                                                            </td>
+                                                            <td class="cart__total">
+                                                                <?php
+                                                                    $pr = $result['price'];
+                                                                    $quan = $res['quantity'];
+
+                                                                    echo ($pr * $quan);
+                                                                ?>
+                                                            </td>
+                                                            <td class="cart__close"><a href="?remove=<?php echo $result['id'] ?>"><span class="icon_close"></a></span></td>
+                                                        </tr>
+                                        <?php
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="cart__btn">
+                            <a href="#">Continue Shopping</a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="cart__btn update__btn">
+                            <a 
+                                href="javascript:{}"
+                                onclick="document.getElementById('my_form').submit();">
+                                <span class="icon_loading"></span> Update cart</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="discount__content">
+                            <h6>Discount codes</h6>
+                            <form action="#">
+                                <input type="text" placeholder="Enter your coupon code">
+                                <button type="submit" class="site-btn">Apply</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 offset-lg-2">
+                        <div class="cart__total__procced">
+                            <h6>Cart total</h6>
+                            <ul>
+                                <li>Subtotal <span><?php echo $sub; ?></span></li>
+                                <li>Total <span><?php echo $total; ?></span></li>
+                            </ul>
+                            <a href="#" class="primary-btn">Proceed to checkout</a>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6">
-                    <div class="cart__btn">
-                        <a href="#">Continue Shopping</a>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6">
-                    <div class="cart__btn update__btn">
-                        <a href="#"><span class="icon_loading"></span> Update cart</a>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="discount__content">
-                        <h6>Discount codes</h6>
-                        <form action="#">
-                            <input type="text" placeholder="Enter your coupon code">
-                            <button type="submit" class="site-btn">Apply</button>
-                        </form>
-                    </div>
-                </div>
-                <div class="col-lg-4 offset-lg-2">
-                    <div class="cart__total__procced">
-                        <h6>Cart total</h6>
-                        <ul>
-                            <li>Subtotal <span>$ 750.0</span></li>
-                            <li>Total <span>$ 750.0</span></li>
-                        </ul>
-                        <a href="#" class="primary-btn">Proceed to checkout</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </form>
     </section>
     <!-- Shop Cart Section End -->
 
