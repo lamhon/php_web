@@ -126,14 +126,15 @@
                                 class="form-control"
                                 value="0"
                                 onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
-                                name="productSale">
+                                name="productSale"
+                                required="required">
                             <span class="input-group-text">%</span>
                         </div>
 
                         <div class="input-group mb-3">
                             <span class="input-group-text" for="inputGroupSelect01">Category</span>
-                            <select class="form-control" id="inputGroupSelect01" name="productCategory">
-                                <option>--Select category--</option>
+                            <select class="form-control" id="inputGroupSelect01" name="productCategory" required>
+                                <option value="">--Select category--</option>
                                 <?php
                                     $cate = new CategoryController();
                                     $cateList = $cate->getAll_category();
