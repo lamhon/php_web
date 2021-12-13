@@ -4,6 +4,8 @@
 
 <?php
     include '../controller/UserController.php';
+    include '../controller/CartController.php';
+
     include '../model/user.php';
 ?>
 

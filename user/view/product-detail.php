@@ -3,6 +3,7 @@
 
     include '../controller/ProductController.php';
     include '../controller/CategoryController.php';
+    include '../controller/CartController.php';
 ?>
 
 <?php

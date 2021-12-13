@@ -263,8 +263,16 @@
                                 $prolst = $proCon->get_Product_Cate_Paging($item_per_page, $offset, $_GET['cate'], 1);
                                 $totalRecords = $proCon->get_AllProduct_ByCate($_GET['cate'], 1);
                             }else if(isset($_GET['minPrice']) && isset($_GET['maxPrice'])){
-                                $prolst = $proCon->get_Product_Price_Paging($item_per_page, $offset, floatval($_GET['minPrice']), floatval($_GET['maxPrice']), 1);
-                                $totalRecords = $proCon->get_AllProduct_ByPrice(floatval($_GET['minPrice']), floatval($_GET['maxPrice']), 1);
+                                $minPrice = floatval($_GET['minPrice']);
+                                $maxPrice = floatval($_GET['maxPrice']);
+                                if($minPrice > $maxPrice){
+                                    $minPrice = $minPrice + $maxPrice;
+                                    $maxPrice = $minPrice - $maxPrice;
+                                    $minPrice = $minPrice - $maxPrice;
+                                }
+
+                                $prolst = $proCon->get_Product_Price_Paging($item_per_page, $offset, $minPrice, $maxPrice, 1);
+                                $totalRecords = $proCon->get_AllProduct_ByPrice($minPrice, $maxPrice, 1);
                             }else{
                                 $prolst = $proCon->get_Product_Paging($item_per_page, $offset, 1);
                                 $totalRecords = $proCon->get_AllProduct(1);
@@ -309,7 +317,7 @@
                                         </ul>
                                     </div>
                                     <div class="product__item__text">
-                                        <h6><a href="#"><?php echo $product['productname'] ?></a></h6>
+                                        <h6><a href="product-detail.php?productid=<?php echo $product['id'] ?>"><?php echo $product['productname'] ?></a></h6>
                                         <div class="rating">
                                             <i class="fa fa-star"></i>
                                             <i class="fa fa-star"></i>

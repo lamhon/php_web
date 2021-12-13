@@ -1,29 +1,42 @@
-<!DOCTYPE html>
-<html lang="zxx">
+<?php
+    include '../view/layouts/content/session.php';
+?>
 
 <?php
-    $dbServerName = 'localhost';
-    $dbUser = 'sor';
-    $dbPass = '123456';
-    $dbName = 'phpweb';
+    include '../controller/CartController.php';
+    include '../controller/UserController.php';
+    include '../controller/MessageController.php';
 
-    //connect to DB
-    $conn = mysqli_connect($dbServerName, $dbUser, $dbPass, $dbName);
-
-    //check connection
-    if(!$conn){
-        echo("Connection failed: " .mysqli_connect_error());
-    }else{
-        //echo "Connect DB successfully";
-    }
-
-    //get all user accounts
-    $sql = 'SELECT * FROM useraccount';
-    $result = mysqli_query($conn, $sql);
-    $users = mysqli_fetch_all($result);
-
-    //print_r($users);
+    include '../model/message.php';
 ?>
+
+<?php
+    if($_SERVER['REQUEST_METHOD'] == 'POST'){
+        if(Session::get('userlogin') == true){
+                // get user information and then get first name and last name
+            $userCon = new UserController();
+            $messCon = new MessageController();
+            $getUser = $userCon->getUser(Session::get('userId'));
+
+            if($getUser){
+                $resUser = $getUser->fetch_assoc();
+
+                $firstname = $resUser['firstname'];
+                $lastname = $resUser['lastname'];
+                $name = $firstname . ' ' . $lastname;
+
+                $mess = new Message(Session::get('userId'), $name, $resUser['email'], $_POST['message'], 0);
+
+                $insertMess = $messCon->insertMessage($mess);
+            }
+        }else{
+            header("Location:login.php");
+        }
+    }
+?>
+
+<!DOCTYPE html>
+<html lang="zxx">
 
 <head>
     <meta charset="UTF-8">
@@ -31,7 +44,7 @@
     <meta name="keywords" content="Ashion, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Sor Decor</title>
+    <title>Sor Decor - Contact</title>
 
     <?php
         include './layouts/cssfile.php';
@@ -86,25 +99,39 @@
                             <ul>
                                 <li>
                                     <h6><i class="fa fa-map-marker"></i> Address</h6>
-                                    <p>160 Pennsylvania Ave NW, Washington, Castle, PA 16101-5161</p>
+                                    <p>D2, Binh Thanh, Ho Chi Minh City</p>
                                 </li>
                                 <li>
                                     <h6><i class="fa fa-phone"></i> Phone</h6>
-                                    <p><span>125-711-811</span><span>125-668-886</span></p>
+                                    <p><span>0345071246</span><span>125-668-886</span></p>
                                 </li>
                                 <li>
                                     <h6><i class="fa fa-headphones"></i> Support</h6>
-                                    <p>Support.photography@gmail.com</p>
+                                    <p>hoangtunglamltd@gmail.com</p>
                                 </li>
                             </ul>
                         </div>
                         <div class="contact__form">
+                            <?php
+                                if(isset($insertMess)){
+                                    echo $insertMess;
+                                }
+                            ?>
                             <h5>SEND MESSAGE</h5>
-                            <form action="#">
-                                <input type="text" placeholder="Name">
-                                <input type="text" placeholder="Email">
-                                <input type="text" placeholder="Website">
-                                <textarea placeholder="Message"></textarea>
+                            <form action="contact.php" method="post">
+                                <?php
+                                    if(Session::get('userlogin') == true){
+                                ?>
+                                    <textarea placeholder="Message" name="message"></textarea>
+                                <?php
+                                    }else{
+                                ?>
+                                    <input type="text" placeholder="Name" name="name">
+                                    <input type="text" placeholder="Email" name="email">
+                                    <textarea placeholder="Message" name="message"></textarea>
+                                <?php
+                                    }
+                                ?>
                                 <button type="submit" class="site-btn">Send Message</button>
                             </form>
                         </div>
