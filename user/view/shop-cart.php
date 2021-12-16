@@ -205,7 +205,7 @@
                                 <li>Subtotal <span><?php echo $sub; ?></span></li>
                                 <li>Total <span><?php echo $total; ?></span></li>
                             </ul>
-                            <a href="#" class="primary-btn">Proceed to checkout</a>
+                            <a href="checkout.php" class="primary-btn">Proceed to checkout</a>
                         </div>
                     </div>
                 </div>

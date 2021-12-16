@@ -72,6 +72,17 @@
             }
         }
 
+        public function clearCart($userid){
+            $query = "DELETE FROM tbl_cart WHERE iduser = '$userid'";
+
+            $result = $this->db->delete($query);
+            if($result){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
         public function checkProduct($idproduct, $iduser){
             $idproduct = mysqli_real_escape_string($this->db::$link, $idproduct);
             $iduser = mysqli_real_escape_string($this->db::$link, $iduser);
