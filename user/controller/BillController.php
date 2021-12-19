@@ -46,5 +46,17 @@
                 return false;
             }
         }
+
+        public function getBillUser($userid){
+            $query = "SELECT * FROM tbl_orderbill WHERE userid = $userid";
+            $result = $this->db->select($query);
+            return $result;
+        }
+
+        public function getBillInfo($billid){
+            $query = "SELECT * FROM tbl_orderinfo WHERE orderid = $billid";
+            $result = $this->db->select($query);
+            return $result;
+        }
     }
 ?>

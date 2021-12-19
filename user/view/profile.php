@@ -102,10 +102,21 @@
     <?php 
         include './layouts/content/header.php';
     ?>
-
+    
 
     <div class="container-mock">
-        <h5>My profile</h5>
+        <div class="filter">
+            <ul class="filter__controls">
+                <li class="active" data-filter=".profile"><a href="profile.php">Profile</a></li>
+                <li data-filter=".order"><a href="order.php">Your order</a></li>
+                <li data-filter=".pending"><a href="pending.php">Pending order</a></li>
+                <li data-filter=".delivered"><a href="delivered.php">Delivered order</a></li>
+            </ul>
+        </div>
+        <div class="mix profile">
+            <h5>My profile</h5>
+        </div>
+        
         <p>Manage your information and security</p>
         <hr>
         <?php
@@ -125,7 +136,7 @@
                 <span class="input-group-text" id="basic-addon1">ID</span>
                 <input 
                     readonly 
-                    type="text" 
+                    type="text"
                     class="form-control"
                     value="<?php echo $result['id'] ?>"
                     aria-label="Username" 
