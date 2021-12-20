@@ -1,3 +1,12 @@
+<?php 
+    include '../view/layout/content/header.php'; 
+?>
+
+<?php
+    include '../controller/MessageController.php';
+
+    $messCon = new MessageController();
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -87,6 +96,7 @@
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
+                                            <th>No</th>
                                             <th>User ID</th>
                                             <th>User name</th>
                                             <th>Email</th>
@@ -96,7 +106,8 @@
                                     </thead>
                                     <tfoot>
                                         <tr>
-                                        <th>User ID</th>
+                                            <th>No</th>
+                                            <th>User ID</th>
                                             <th>User name</th>
                                             <th>Email</th>
                                             <th>Message</th>
@@ -104,13 +115,37 @@
                                         </tr>
                                     </tfoot>
                                     <tbody>
-                                        <tr>
-                                            <td>US001</td>
-                                            <td>Hoàng Tùng Lâm</td>
-                                            <td>tunglam.sor@gmail.com</td>
-                                            <td>Mình khồng đặt hàng được</td>
-                                            <td><button class="btn btn-primary"><i class="fas fa-reply"></i></button></td>
-                                        </tr>
+                                        <?php
+                                            $messlst = $messCon->getAllMessage();
+                                            $i = 0;
+                                            if($messlst){
+                                                while($mess = $messlst->fetch_assoc()){
+                                                    $i++;
+                                        ?>
+                                            <tr>
+                                                <td><?php echo $i ?></td>
+                                                <td><?php echo $mess['userid'] ?></td>
+                                                <td><?php echo $mess['username'] ?></td>
+                                                <td><?php echo $mess['email'] ?></td>
+                                                <td><?php echo $mess['mess'] ?></td>
+                                                <td>
+                                                    <?php
+                                                        if($mess['stt'] == 0){
+                                                    ?>
+                                                        <a href="reply-message.php?messid=<?php echo $mess['id'] ?>" class="btn btn-primary"><i class="fas fa-reply"></i></a>
+                                                    <?php
+                                                        }else{
+                                                    ?>
+                                                        <a href="#" class="btn btn-primary"><i class="fas fa-search"></i></a>
+                                                    <?php
+                                                        }
+                                                    ?>
+                                                </td>
+                                            </tr>
+                                        <?php
+                                                }
+                                            }
+                                        ?>
                                     </tbody>
                                 </table>
                             </div>
