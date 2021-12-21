@@ -1,3 +1,25 @@
+<?php 
+    include '../view/layout/content/header.php'; 
+?>
+
+<?php
+    include '../controller/OrderController.php';
+?>
+
+<?php
+    $orderCon = new OrderController();
+
+    if(isset($_GET['confirm'])){
+        $checkid = $orderCon->checkOrderid($_GET['confirm']);
+        if($checkid){
+            $confirmOrder = $orderCon->changeDeliveryStt($_GET['confirm'], 1);
+            if($confirmOrder){
+                header('Location:pending-order.php');
+            }
+        }
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -93,6 +115,7 @@
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <thead>
                                         <tr>
+                                            <th>No</th>
                                             <th>Order ID</th>
                                             <th>User ID</th>
                                             <th>User name</th>
@@ -106,6 +129,7 @@
                                     </thead>
                                     <tfoot>
                                         <tr>
+                                            <th>No</th>
                                             <th>Order ID</th>
                                             <th>User ID</th>
                                             <th>User name</th>
@@ -118,17 +142,37 @@
                                         </tr>
                                     </tfoot>
                                     <tbody>
-                                        <tr>
-                                            <td><a href="#">HD001</a></td>
-                                            <td>US001</td>
-                                            <td>Hoàng Tùng Lâm</td>
-                                            <td>79 Buôn Ju, TP BMT</td>
-                                            <td>0345071246</td>
-                                            <td>Không có</td>
-                                            <td>Đã thanh toán</td>
-                                            <td>2/5/2018</td>
-                                            <td><button class="btn btn-success">Confirm <i class="fas fa-check"></i></button></td>
-                                        </tr>
+                                        <?php
+                                            $lstOrder = $orderCon->getlstOrder(0);
+                                            $i = 0;
+                                            if($lstOrder){
+                                                while($order = $lstOrder->fetch_assoc()){
+                                                    $i++;
+                                        ?>
+                                            <tr>
+                                                <td><?php echo $i ?></td>
+                                                <td><a href="../../user/view/order-info.php?id=<?php echo $order['id'] ?>"><?php echo $order['id'] ?></a></td>
+                                                <td><?php echo $order['userid'] ?></td>
+                                                <td><?php echo $order['username'] ?></td>
+                                                <td><?php echo $order['useraddress'] ?></td>
+                                                <td><?php echo $order['phone'] ?></td>
+                                                <td><?php echo $order['note'] ?></td>
+                                                <td>
+                                                    <?php
+                                                        if($order['paid'] == 0){
+                                                            echo '<p style="color: red;">unpaid</p>';
+                                                        }else{
+                                                            echo '<p style="color: green;">paid</p>';
+                                                        }
+                                                    ?>
+                                                </td>
+                                                <td><?php echo $order['dateorder'] ?></td>
+                                                <td><a href="?confirm=<?php echo $order['id'] ?>" class="btn btn-success">Confirm <i class="fas fa-check"></i></a></td>
+                                            </tr>
+                                        <?php
+                                                }
+                                            }
+                                        ?>
                                     </tbody>
                                 </table>
                             </div>
