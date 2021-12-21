@@ -169,7 +169,7 @@
                         </td>
                         <td><?php echo $bill['dateorder'] ?></td>
                         <td><?php echo $bill['deliverydate'] ?></td>
-                        <td><a href="?ratebill=<?php echo $bill['id'] ?>" class="btn btn-success">Rate</a></td>
+                        <td><a href="feedback.php?ratebill=<?php echo $bill['id'] ?>" class="btn btn-success">Rate</a></td>
                     <?php
                                 }
                             }

@@ -108,5 +108,41 @@
             $result = str_replace(array(','), '', $price);
             return $result;
         }
+
+        public function getRate($idproduct){
+            $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct'";
+            $result = $this->db->select($query);
+
+            $i = 0;
+            $totalrate = 0;
+            $rating = 0;
+            if($result){
+                while($rating = $result->fetch_assoc()){
+                    $i++;
+                    $totalrate += $rating['rate'];
+                }
+                $rating = $totalrate/$i;
+            }
+            return $rating;
+        }
+
+        public function getReviewQuantity($idproduct){
+            $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct'";
+            $result = $this->db->select($query);
+
+            $i = 0;
+            if($result){
+                while($rating = $result->fetch_assoc()){
+                    $i++;
+                }
+            }
+            return $i;
+        }
+
+        public function getReview($idproduct){
+            $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct'";
+            $result = $this->db->select($query);
+            return $result;
+        }
     }
 ?>

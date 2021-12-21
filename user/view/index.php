@@ -237,11 +237,43 @@
                     <div class="product__item__text">
                         <h6><a href="product-detail.php?productid=<?php echo $result['id'] ?>"><?php echo $result['productname'] ?></a></h6>
                         <div class="rating">
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
+                        <?php
+                            $rate = $productCon->getRate($result['id']);
+                            $rate = round($rate, 1);
+                            $countstar = intval($rate);
+                            $starodd = $rate - $countstar;
+                            if($starodd < 5){
+                                for($i = 0; $i < $countstar; $i++){
+                        ?>
+                                    <i class="fa fa-star"></i>
+                        <?php
+                                }
+                        ?>
+                                    <i class="far fa-star"></i> 
+                        <?php
+                            }else if($starodd == 5){
+                                for($i = 0; $i < $countstar; $i++){
+                        ?>
+                                    <i class="fa fa-star"></i>
+                        <?php
+                                }
+                        ?>
+                                <i class="fas fa-star-half"></i>
+                        <?php
+                            }else if($starodd > 5){
+                                for($i = 0; $i < $countstar+1; $i++){
+                        ?>
+                                    <i class="fa fa-star"></i>
+                        <?php
+                                }
+                                $nullStar = 5 - ($countstar + 1);
+                                for($i = 0; $i <$nullStar; $i++){
+                        ?>
+                                    <i class="far fa-star"></i>
+                        <?php
+                                }
+                            }
+                        ?>
                         </div>
                         <?php 
                             if($result['sale'] != 0){

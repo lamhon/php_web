@@ -4,11 +4,13 @@
     include '../controller/ProductController.php';
     include '../controller/CategoryController.php';
     include '../controller/CartController.php';
+    include '../controller/UserController.php';
 ?>
 
 <?php
     $productCon = new ProductController();
     $cateCon = new CategoryController();
+    $userCon = new UserController();
 
     if(!isset($_GET['productid']) || ($_GET['productid'] == NULL )){
         echo "<script>window.location = 'index.php'</script>";
@@ -31,6 +33,58 @@
     <?php
         include './layouts/cssfile.php';
     ?>
+
+    <style>
+        @media (min-width: 0) {
+            .g-mr-15 {
+                margin-right: 1.07143rem !important;
+            }
+        }
+        @media (min-width: 0){
+            .g-mt-3 {
+                margin-top: 0.21429rem !important;
+            }
+        }
+
+        .g-height-50 {
+            height: 50px;
+        }
+
+        .g-width-50 {
+            width: 50px !important;
+        }
+
+        @media (min-width: 0){
+            .g-pa-30 {
+                padding: 2.14286rem !important;
+            }
+        }
+
+        .g-bg-secondary {
+            background-color: #fafafa !important;
+        }
+
+        .u-shadow-v18 {
+            box-shadow: 0 5px 10px -6px rgba(0, 0, 0, 0.15);
+        }
+
+        .g-color-gray-dark-v4 {
+            color: #777 !important;
+        }
+
+        .g-font-size-12 {
+            font-size: 0.85714rem !important;
+        }
+
+        .media-comment {
+            margin-top:20px
+        }
+
+        .media-body img{
+            height: 210px;
+            width: 190px;
+        }
+    </style>
 </head>
 
 <body>
@@ -132,12 +186,55 @@
                             </span>
                         </h3>
                         <div class="rating">
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <span>( 138 reviews )</span>
+                            <?php
+                                    $rate = $productCon->getRate($result['id']);
+                                    $rate = round($rate, 1);
+                                    $countstar = intval($rate);
+                                    $starodd = $rate - $countstar;
+                                    if($starodd < 5){
+                                        for($i = 0; $i < $countstar; $i++){
+                                ?>
+                                            <i class="fa fa-star"></i>
+                                <?php
+                                        }
+                                ?>
+                                            <i class="far fa-star"></i> 
+                                <?php
+                                    }else if($starodd == 5){
+                                        for($i = 0; $i < $countstar; $i++){
+                                ?>
+                                            <i class="fa fa-star"></i>
+                                <?php
+                                        }
+                                ?>
+                                        <i class="fas fa-star-half"></i>
+                                <?php
+                                    }else if($starodd > 5){
+                                        for($i = 0; $i < $countstar+1; $i++){
+                                ?>
+                                            <i class="fa fa-star"></i>
+                                <?php
+                                        }
+                                        $nullStar = 5 - ($countstar + 1);
+                                        for($i = 0; $i <$nullStar; $i++){
+                                ?>
+                                            <i class="far fa-star"></i>
+                                <?php
+                                        }
+                                    }
+                                ?>
+                            <?php
+                                $ratequan = $productCon->getReviewQuantity($result['id']);
+                                if($ratequan == 1){
+                            ?>
+                                <span>( <?php echo $ratequan; ?> review )</span>
+                            <?php
+                                }else{
+                            ?>
+                                <span>( <?php echo $ratequan ?> reviews )</span>
+                            <?php
+                                }
+                            ?>
                         </div>
                         <?php
                             if($result['sale'] != 0){
@@ -268,7 +365,17 @@
                                 <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">Specification</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Reviews ( 2 )</a>
+                                <?php
+                                    if($ratequan == 1){
+                                ?>
+                                    <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Review ( 1 )</a>
+                                <?php
+                                    }else{
+                                ?>
+                                    <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">Reviews ( <?php echo $ratequan; ?> )</a>
+                                <?php
+                                    }
+                                ?>
                             </li>
                         </ul>
                         <div class="tab-content">
@@ -290,17 +397,88 @@
                                 quis, sem.</p>
                             </div>
                             <div class="tab-pane" id="tabs-3" role="tabpanel">
-                                <h6>Reviews ( 2 )</h6>
-                                <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed
-                                    quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt loret.
-                                    Neque porro lorem quisquam est, qui dolorem ipsum quia dolor si. Nemo enim ipsam
-                                    voluptatem quia voluptas sit aspernatur aut odit aut loret fugit, sed quia ipsu
-                                    consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Nulla
-                                consequat massa quis enim.</p>
-                                <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget
-                                    dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes,
-                                    nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium
-                                quis, sem.</p>
+                                <?php
+                                    $lstReviews = $productCon->getReview($_GET['productid']);
+                                    if($lstReviews){
+                                        while($comment = $lstReviews->fetch_assoc()){
+                                            $getUser = $userCon->getUser(Session::get('userId'));
+                                            $user = $getUser->fetch_assoc();
+                                ?>
+                                    <div class="container">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <div class="media g-mb-30 media-comment">
+                                                    <img class="d-flex g-width-50 g-height-50 rounded-circle g-mt-3 g-mr-15" src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Image Description">
+                                                    <div class="media-body u-shadow-v18 g-bg-secondary g-pa-30">
+                                                        <div class="media-body u-shadow-v18 g-bg-secondary g-pa-30">
+                                                            <h5 class="h5 g-color-gray-dark-v1 mb-0"><?php echo $user['firstname'].' '.$user['lastname'] ?></h5>
+                                                            <?php
+                                                                $today = date("Y/m/d");
+                                                                $dateReview = $comment['feed_date'];
+                                                                $dt = new DateTime($dateReview);
+                                                                $dateReview = $dt->format('Y/m/d');
+                                                                $datediff = $dateReview->diff($today);
+                                                                // $date = floor($datediff/(60*60*24));
+                                                                // if($date > 30){
+                                                                //     //Xuat date review
+                                                                // }else if($date <= 30 && $date > 1){
+                                                                //     //Xuat date ra
+                                                                // }else{
+                                                                //     //Xuat gio
+                                                                // }
+                                                                var_dump($datediff->d);
+                                                            ?>
+                                                            <span class="g-color-gray-dark-v4 g-font-size-12">5 days ago</span>
+                                                            <?php
+                                                                $rate = $productCon->getRate($result['id']);
+                                                                $rate = round($rate, 1);
+                                                                $countstar = intval($rate);
+                                                                $starodd = $rate - $countstar;
+                                                                if($starodd < 5){
+                                                                    for($i = 0; $i < $countstar; $i++){
+                                                            ?>
+                                                                        <i class="fa fa-star"></i>
+                                                            <?php
+                                                                    }
+                                                            ?>
+                                                                        <i class="far fa-star"></i> 
+                                                            <?php
+                                                                }else if($starodd == 5){
+                                                                    for($i = 0; $i < $countstar; $i++){
+                                                            ?>
+                                                                        <i class="fa fa-star"></i>
+                                                            <?php
+                                                                    }
+                                                            ?>
+                                                                    <i class="fas fa-star-half"></i>
+                                                            <?php
+                                                                }else if($starodd > 5){
+                                                                    for($i = 0; $i < $countstar+1; $i++){
+                                                            ?>
+                                                                        <i class="fa fa-star"></i>
+                                                            <?php
+                                                                    }
+                                                                    $nullStar = 5 - ($countstar + 1);
+                                                                    for($i = 0; $i <$nullStar; $i++){
+                                                            ?>
+                                                                        <i class="far fa-star"></i>
+                                                            <?php
+                                                                    }
+                                                                }
+                                                            ?>
+                                                        </div>
+                                                        <p><?php echo $comment['mess'] ?></p>
+                                                        <br>
+                                                        <img src="../../public/<?php echo $comment['img'] ?>" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php
+                                        }
+                                    }
+                                ?>
                             </div>
                         </div>
                     </div>

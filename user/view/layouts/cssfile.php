@@ -10,3 +10,6 @@
 <link rel="stylesheet" href="./assets/css/owl.carousel.min.css" type="text/css">
 <link rel="stylesheet" href="./assets/css/slicknav.min.css" type="text/css">
 <link rel="stylesheet" href="./assets/css/style.css" type="text/css">
+<!-- Font awesome -->
+<script src="https://kit.fontawesome.com/16bbaa6f54.js" crossorigin="anonymous"></script>
+<!-- End font -->
