@@ -58,5 +58,11 @@
             $result = $this->db->select($query);
             return $result;
         }
+
+        public function getProductRate($billid){
+            $query = "SELECT * FROM tbl_orderinfo WHERE orderid = $billid AND feedback = 0";
+            $result = $this->db->select($query);
+            return $result;
+        }
     }
 ?>

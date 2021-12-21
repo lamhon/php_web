@@ -141,6 +141,7 @@
                     <th>Paid</th>
                     <th>Date order</th>
                     <th>Delivery date</th>
+                    <th>Feedback</th>
                 </tr>
                 <tr>
                     <?php
@@ -168,6 +169,7 @@
                         </td>
                         <td><?php echo $bill['dateorder'] ?></td>
                         <td><?php echo $bill['deliverydate'] ?></td>
+                        <td><a href="?ratebill=<?php echo $bill['id'] ?>" class="btn btn-success">Rate</a></td>
                     <?php
                                 }
                             }
