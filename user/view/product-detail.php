@@ -191,7 +191,9 @@
                                     $rate = round($rate, 1);
                                     $countstar = intval($rate);
                                     $starodd = $rate - $countstar;
-                                    if($starodd < 5){
+                                    if($countstar == 0 && $starodd == 0){
+
+                                    }else if($starodd < 5){
                                         for($i = 0; $i < $countstar; $i++){
                                 ?>
                                             <i class="fa fa-star"></i>
@@ -413,22 +415,42 @@
                                                         <div class="media-body u-shadow-v18 g-bg-secondary g-pa-30">
                                                             <h5 class="h5 g-color-gray-dark-v1 mb-0"><?php echo $user['firstname'].' '.$user['lastname'] ?></h5>
                                                             <?php
-                                                                $today = date("Y/m/d");
+                                                                $today = strtotime(date("Y/m/d"));
                                                                 $dateReview = $comment['feed_date'];
                                                                 $dt = new DateTime($dateReview);
-                                                                $dateReview = $dt->format('Y/m/d');
-                                                                $datediff = $dateReview->diff($today);
-                                                                // $date = floor($datediff/(60*60*24));
-                                                                // if($date > 30){
-                                                                //     //Xuat date review
-                                                                // }else if($date <= 30 && $date > 1){
-                                                                //     //Xuat date ra
-                                                                // }else{
-                                                                //     //Xuat gio
-                                                                // }
-                                                                var_dump($datediff->d);
+                                                                $dateReview = strtotime($dt->format('Y/m/d'));
+                                                                $datediff = abs($today - $dateReview);
+                                                                $datediff = floor($datediff/(60*60*24));
+
+                                                                if($datediff > 30){
                                                             ?>
-                                                            <span class="g-color-gray-dark-v4 g-font-size-12">5 days ago</span>
+                                                                <span class="g-color-gray-dark-v4 g-font-size-12"><?php echo date("d/m/Y",$dateReview); ?></span>
+                                                            <?php
+                                                                }else if($datediff <= 30 && $datediff > 1){
+                                                            ?>
+                                                                    <span class="g-color-gray-dark-v4 g-font-size-12"><?php echo $datediff.' days ago'; ?></span>
+                                                            <?php
+                                                                    // echo $datediff;
+                                                                }else if($datediff == 1){
+                                                            ?>
+                                                                <span class="g-color-gray-dark-v4 g-font-size-12"><?php echo $datediff.' day ago'; ?></span>
+                                                            <?php
+                                                                }else{
+                                                                    $datediff = abs($today - $dateReview);
+                                                                    if($datediff < 3600){
+                                                                         $time = floor($datediff/60);
+                                                            ?>
+                                                                <span class="g-color-gray-dark-v4 g-font-size-12"><?php echo $time.' minutes ago'; ?></span>
+                                                            <?php
+                                                                    }else{
+                                                                         $time = floor($datediff/(60*60));
+                                                            ?>
+                                                                <span class="g-color-gray-dark-v4 g-font-size-12"><?php echo $time.' hours ago'; ?></span>
+                                                            <?php
+                                                                    }
+                                                                }
+                                                            ?>
+                                                            <!-- <span class="g-color-gray-dark-v4 g-font-size-12">5 days ago</span> -->
                                                             <?php
                                                                 $rate = $productCon->getRate($result['id']);
                                                                 $rate = round($rate, 1);

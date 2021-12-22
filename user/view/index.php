@@ -242,7 +242,11 @@
                             $rate = round($rate, 1);
                             $countstar = intval($rate);
                             $starodd = $rate - $countstar;
-                            if($starodd < 5){
+                            if($countstar == 0 && $starodd == 0){
+                        ?>
+                            
+                        <?php
+                            }else if($starodd < 5){
                                 for($i = 0; $i < $countstar; $i++){
                         ?>
                                     <i class="fa fa-star"></i>
