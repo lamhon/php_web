@@ -134,10 +134,6 @@
                                                     ?>
                                                         <a href="reply-message.php?messid=<?php echo $mess['id'] ?>" class="btn btn-primary"><i class="fas fa-reply"></i></a>
                                                     <?php
-                                                        }else{
-                                                    ?>
-                                                        <a href="#" class="btn btn-primary"><i class="fas fa-search"></i></a>
-                                                    <?php
                                                         }
                                                     ?>
                                                 </td>

@@ -28,6 +28,56 @@
     <?php 
         include '../view/layout/cssfile.php';
     ?>
+    <style>
+        .input-group img{
+            width: 120px;
+            height: 130px;
+        }
+
+        #upload-photo{
+            opacity: 0;
+            position: absolute;
+            z-index: -1;
+        }
+
+        .input-group .img{
+            margin-right: 5px;
+            margin-left: 5px;
+        }
+
+        .container-upload{
+            position: relative;
+            width: 120px;
+        }
+
+        .img{
+            opacity: 1;
+            display: block;
+            width: 120px;
+            height: 130px;
+            transition: .5s ease;
+            backface-visibility: hidden;
+        }
+
+        .middle-upload{
+            transition: .5s ease;
+            opacity: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .container-upload:hover .img{
+            opacity: 0.5;
+        }
+
+        .container-upload:hover .middle-upload{
+            opacity: 1;
+        }
+    </style>
 </head>
 
 <body id="page-top">
@@ -137,7 +187,7 @@
                                 <option value="">--Select category--</option>
                                 <?php
                                     $cate = new CategoryController();
-                                    $cateList = $cate->getAll_category();
+                                    $cateList = $cate->getAll_categoryByStt(1);
                                     if($cateList){
                                         while($result = $cateList->fetch_assoc()){
                                 ?>
@@ -180,9 +230,13 @@
                                 onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
                         </div>
 
-                        <div class="input-group mb-3">
-                            <label class="input-group-text" for="inputGroupFile01">Image</label>
-                            <input type="file" class="form-control" name="image" id="inputGroupFile01" required="required">
+                        <div class="container-upload input-group mb-3">
+                            <!-- <label class="input-group-text" for="inputGroupFile01">Image</label> -->
+                            <label class="img" for="upload-photo"><img id="productImg" src="" alt="Upload product photo"></label>
+                            <input type="file" class="form-control" name="image" id="upload-photo" onchange="readURL(this);">
+                            <div class="middle-upload">
+                                <div class="text-upload"><i class="fas fa-arrow-circle-up text-black-300"></i></div>
+                            </div>
                         </div>
 
                         <div class="input-group">
@@ -224,6 +278,20 @@
     <?php
         include './layout/jsfile.php';
     ?>
+
+    <script>
+        function readURL(input){
+            if(input.files && input.files[0]){
+                let reader = new FileReader();
+
+                reader.onload = function(e){
+                    $('#productImg')
+                        .attr('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 </body>
 
 </html>

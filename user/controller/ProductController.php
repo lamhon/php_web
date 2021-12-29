@@ -72,7 +72,7 @@
             $div = explode('.', $file_name);
             $file_ext = strtolower(end($div));
             $unique_image = substr(md5(time()), 0, 10). '.'.$file_ext;
-            $uploaded_image = "../../public/".$unique_image;
+            $uploaded_image = "../../public/feedback/".$unique_image;
 
             if($rate == NULL){
                 $alert = '<div class="alert alert-danger">Please rate this product</div>';
@@ -139,10 +139,38 @@
             return $i;
         }
 
+        public function getPercentReview($idproduct, $star){
+            $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct' AND rate = '$star'";
+            $result = $this->db->select($query);
+            $quan = 0;
+            if($result){
+                while($rating = $result->fetch_assoc()){
+                    $quan++;
+                }
+            }
+
+            $total = $this->getReviewQuantity($idproduct);
+            return ($quan / $total)*100;
+        }
+
+        public function getQuanOfStar($idproduct, $star){
+            $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct' AND rate = '$star'";
+            $result = $this->db->select($query);
+            $quan = 0;
+            if($result){
+                while($rating = $result->fetch_assoc()){
+                    $quan++;
+                }
+            }
+            return $quan;
+        }
+
         public function getReview($idproduct){
             $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct'";
             $result = $this->db->select($query);
             return $result;
         }
+
+        
     }
 ?>

@@ -44,6 +44,13 @@
             return $result;
         }
 
+        // Get all category from db by stt
+        public function getAll_categoryByStt($stt){
+            $query = "SELECT * FROM tbl_category WHERE stt = '$stt' ORDER BY categoryname DESC";
+            $result = $this->db->select($query);
+            return $result;
+        }
+
 
         // Get category by id
         public function getCategory($id){
@@ -56,31 +63,26 @@
         public function update_category($cateId, $categoryName, $cateStt){
             $oldCateName = $this->getCategory($cateId)->fetch_assoc()['categoryname'];
 
-            if($categoryName == $oldCateName){
-                $alert = '';
+            $cateId = mysqli_real_escape_string($this->db::$link, $cateId);
+            $categoryName = mysqli_real_escape_string($this->db::$link, $categoryName);
+            $cateStt = mysqli_real_escape_string($this->db::$link, $cateStt);
+
+            if(empty($categoryName)){
+                $alert = '<div class="alert alert-danger">Category name must be not empty</div>';
                 return $alert;
             }else{
-                $cateId = mysqli_real_escape_string($this->db::$link, $cateId);
-                $categoryName = mysqli_real_escape_string($this->db::$link, $categoryName);
-                $cateStt = mysqli_real_escape_string($this->db::$link, $cateStt);
-
-                if(empty($categoryName)){
-                    $alert = '<div class="alert alert-danger">Category name must be not empty</div>';
+                if($this->checkExist($categoryName) && $categoryName != $oldCateName){
+                    $alert = '<div class="alert alert-danger">Category name already exist</div>';
                     return $alert;
                 }else{
-                    if($this->checkExist($categoryName)){
-                        $alert = '<div class="alert alert-danger">Category name already exist</div>';
+                    $query = "UPDATE tbl_category SET categoryname = '$categoryName', stt = '$cateStt' WHERE id = '$cateId'";
+                    $result = $this->db->update($query);
+                    if($result){
+                        $alert = '<div class="alert alert-success">Update category successfully</div>';
                         return $alert;
                     }else{
-                        $query = "UPDATE tbl_category SET categoryname = '$categoryName', stt = '$cateStt' WHERE id = '$cateId'";
-                        $result = $this->db->update($query);
-                        if($result){
-                            $alert = '<div class="alert alert-success">Update category successfully</div>';
-                            return $alert;
-                        }else{
-                            $alert = '<div class="alert alert-danger">Update category failure</div>';
-                            return $alert;
-                        }
+                        $alert = '<div class="alert alert-danger">Update category failure</div>';
+                        return $alert;
                     }
                 }
             }

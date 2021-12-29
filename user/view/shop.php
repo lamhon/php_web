@@ -289,23 +289,25 @@
                                     <div class="product__item__pic set-bg" data-setbg="../../public/<?php echo $product['img'] ?>">
                                         <!-- <div class="label">Sale</div> -->
                                         <?php
-                                            if($product['categoryid'] == 1){
+                                            $getCate = $cateCon->getCategory($product['categoryid']);
+                                            $cateRes = $getCate->fetch_assoc();
+                                            if($cateRes['id'] == 1){
                                         ?>
-                                            <div class="label trangtri">Decorate</div>
+                                            <div class="label trangtri"><?php echo $cateRes['categoryname']?></div>
                                         <?php
-                                            }else if($product['categoryid'] == 2){
+                                            }else if($cateRes['id'] == 2){
                                         ?>
-                                            <div class="label postcard">Postcard</div>
+                                            <div class="label postcard"><?php echo $cateRes['categoryname']?></div>
                                         <?php
-                                            }else if($product['categoryid'] == 3){
+                                            }else if($cateRes['id'] == 3){
                                         ?>
-                                            <div class="label quanao">Clothes</div>
+                                            <div class="label quanao"><?php echo $cateRes['categoryname']?></div>
                                         <?php
-                                            }else if($product['categoryid'] == 4){
+                                            }else if($cateRes['id'] == 4){
                                         ?>
-                                            <div class="label giadung">Houseware</div>
+                                            <div class="label giadung"><?php echo $cateRes['categoryname']?></div>
                                         <?php
-                                            }else if($product['sale'] > 0){
+                                            }else if($result['sale'] > 0){
                                         ?>
                                             <div class="label sale">Sale</div>
                                         <?php
@@ -319,11 +321,53 @@
                                     <div class="product__item__text">
                                         <h6><a href="product-detail.php?productid=<?php echo $product['id'] ?>"><?php echo $product['productname'] ?></a></h6>
                                         <div class="rating">
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <?php
+                                                $rate = $proCon->getRate($product['id']);
+                                                $rate = round($rate, 1);
+                                                $countstar = intval($rate);
+                                                $starodd = $rate - $countstar;
+                                                if($countstar == 0 && $starodd == 0){
+                                            ?>
+                                                
+                                            <?php
+                                                }else if($starodd < 5){
+                                                    for($i = 0; $i < $countstar; $i++){
+                                            ?>
+                                                        <i class="fa fa-star"></i>
+                                            <?php
+                                                    }
+                                                    $nonStar = 5 - $countstar;
+                                                    for($i = 0; $i < $nonStar; $i++){
+                                            ?>
+                                                    <i class="far fa-star"></i>
+                                            <?php
+                                                    }
+                                            ?>
+                                                        
+                                            <?php
+                                                }else if($starodd == 5){
+                                                    for($i = 0; $i < $countstar; $i++){
+                                            ?>
+                                                        <i class="fa fa-star"></i>
+                                            <?php
+                                                    }
+                                            ?>
+                                                    <i class="fas fa-star-half"></i>
+                                            <?php
+                                                }else if($starodd > 5){
+                                                    for($i = 0; $i < $countstar+1; $i++){
+                                            ?>
+                                                        <i class="fa fa-star"></i>
+                                            <?php
+                                                    }
+                                                    $nullStar = 5 - ($countstar + 1);
+                                                    for($i = 0; $i <$nullStar; $i++){
+                                            ?>
+                                                        <i class="far fa-star"></i>
+                                            <?php
+                                                    }
+                                                }
+                                            ?>
                                         </div>
                                         <?php
                                             if($product['sale'] > 0){

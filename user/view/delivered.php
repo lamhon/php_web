@@ -149,7 +149,7 @@
                         $i = 0;
                         if($lstBill){
                             while($bill = $lstBill->fetch_assoc()){
-                                if($bill['deliverystt'] == 1){
+                                if($bill['deliverystt'] == 1 && $bill['deliverydate'] != null){
                                     $i++;
                     ?>
                         <td><?php echo $i ?></td>

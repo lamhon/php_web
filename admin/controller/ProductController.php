@@ -38,10 +38,8 @@
                 $unique_image = substr(md5(time()), 0, 10). '.'.$file_ext;
                 $uploaded_image = "../../public/".$unique_image;
 
-                if($productName == '' || $productPrice == '' ||
-                    $productCategory == '' || $productInformation == '' || $productDescription == '' || 
-                    $productQuantity == '' || $file_name == ''){
-                    $alert = '<div class="alert alert-danger">Field must be not empty</div>';
+                if($productPrice == 0){
+                    $alert = '<div class="alert alert-danger">Price cannot be 0</div>';
                     return $alert;
                 }else{
                     move_uploaded_file($file_temp, $uploaded_image);
@@ -110,6 +108,9 @@
                         $alert = '<div class="alert alert-danger">Update product failure</div>';
                         return $alert;
                     }
+                }else if($price == 0){
+                    $alert = '<div class="alert alert-danger">Price cannot be 0</div>';
+                    return $alert;
                 }else{
                     move_uploaded_file($file_temp, $uploaded_image);
                 

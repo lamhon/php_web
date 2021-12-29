@@ -231,7 +231,8 @@
                             <span class="input-group-text">Sale</span>
                             <input 
                                 style="margin-right:5px" 
-                                type="text" 
+                                type="text"
+                                value="<?php echo $result['sale'] ?>"
                                 aria-label="50%" 
                                 class="form-control"
                                 name="productSale"
@@ -261,7 +262,7 @@
                                     }
                                 ?>
                                 <?php
-                                    $show = $cate->getAll_category();
+                                    $show = $cate->getAll_categoryByStt(1);
                                     if($show){
                                         while($cateOp = $show->fetch_assoc()){
                                             if(strcmp($cateOp['categoryname'], $defaultCate) != 0){
@@ -317,6 +318,7 @@
                                 value="<?php echo $result['quantity'] ?>"
                                 aria-label="Recipient's username" 
                                 aria-describedby="basic-addon2"
+                                onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
                                 name="productQuantity">
                         </div>
 

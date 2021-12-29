@@ -12,6 +12,8 @@
 
 <?php
     include '../view/layouts/content/add-cart.php';
+
+    $cateCon = new CategoryController();
 ?>
 
 
@@ -198,6 +200,7 @@
         ?>
         <div class="row property__gallery">
             <?php
+                
                 if($product){
                     while($result = $product->fetch_assoc()){
             ?>
@@ -205,25 +208,27 @@
                 <div class="product__item">
                     <div class="product__item__pic set-bg" data-setbg="../../public/<?php echo $result['img'] ?>">
                         <?php
-                            if($result['categoryid'] == 1){
+                            $getCate = $cateCon->getCategory($result['categoryid']);
+                            $cateRes = $getCate->fetch_assoc();
+                            if($cateRes['id'] == 1){
                         ?>
-                        <div class="label trangtri">Decorate</div>
+                            <div class="label trangtri"><?php echo $cateRes['categoryname']?></div>
                         <?php
-                            }else if($result['categoryid'] == 2){
+                            }else if($cateRes['id'] == 2){
                         ?>
-                        <div class="label postcard">Postcard</div>
+                            <div class="label postcard"><?php echo $cateRes['categoryname']?></div>
                         <?php
-                            }else if($result['categoryid'] == 3){
+                            }else if($cateRes['id'] == 3){
                         ?>
-                        <div class="label quanao">Clothes</div>
+                            <div class="label quanao"><?php echo $cateRes['categoryname']?></div>
                         <?php
-                            }else if($result['categoryid'] == 4){
+                            }else if($cateRes['id'] == 4){
                         ?>
-                        <div class="label giadung">Houseware</div>
+                            <div class="label giadung"><?php echo $cateRes['categoryname']?></div>
                         <?php
-                            }else if($result['categoryid'] == 5){
+                            }else if($result['sale'] > 0){
                         ?>
-                        <div class="label sale">Sale</div>
+                            <div class="label sale">Sale</div>
                         <?php
                             }
                         ?>
@@ -246,34 +251,34 @@
                         ?>
                             
                         <?php
-                            }else if($starodd < 5){
+                            }else if($starodd < 0.5){
+                                for($i = 0; $i < $countstar; $i++){
+                        ?>
+                                    <i class="fa fa-star"></i>
+                        <?php
+                                }
+                                $nonStar = 5 - $countstar;
+                                for($i = 0; $i < $nonStar; $i++){
+                        ?>
+                                <i class="far fa-star"></i>
+                        <?php
+                                }
+                        ?>
+                                     
+                        <?php
+                            }else if($starodd >= 0.5){
                                 for($i = 0; $i < $countstar; $i++){
                         ?>
                                     <i class="fa fa-star"></i>
                         <?php
                                 }
                         ?>
-                                    <i class="far fa-star"></i> 
+                                <i class="fas fa-star-half-alt"></i>
                         <?php
-                            }else if($starodd == 5){
-                                for($i = 0; $i < $countstar; $i++){
+                                $nonStar = 5 - $countstar - 1;
+                                for($i = 0; $i < $nonStar; $i++){
                         ?>
-                                    <i class="fa fa-star"></i>
-                        <?php
-                                }
-                        ?>
-                                <i class="fas fa-star-half"></i>
-                        <?php
-                            }else if($starodd > 5){
-                                for($i = 0; $i < $countstar+1; $i++){
-                        ?>
-                                    <i class="fa fa-star"></i>
-                        <?php
-                                }
-                                $nullStar = 5 - ($countstar + 1);
-                                for($i = 0; $i <$nullStar; $i++){
-                        ?>
-                                    <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
                         <?php
                                 }
                             }

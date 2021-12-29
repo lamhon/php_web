@@ -1,6 +1,6 @@
 <?php
     if(isset($_GET['add-cart'])){
-        if(Session::get('userId') != null){
+        if(Session::get('userlogin') == true){
             $id = $_GET['add-cart'];
 
             $productCon = new ProductController();
@@ -14,7 +14,9 @@
                 }
             }
         }else{
-            header("Location:login.php");
+            $id = $_GET['add-cart'];
+
+            
         }
     }
 ?>

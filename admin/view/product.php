@@ -144,7 +144,7 @@
                                             <th><?php echo $i ?></th>
                                             <td><?php echo $result['id'] ?></td>
                                             <td><?php echo $result['productname'] ?></td>
-                                            <td><?php echo $result['price'] ?></td>
+                                            <td><?php echo number_format($result['price']) ?></td>
                                             <td><?php echo intval($result['sale']) ?>%</td>
                                             <td>
                                                 <?php 

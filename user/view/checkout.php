@@ -161,6 +161,7 @@
                                 <div class="checkout__form__input">
                                     <p>First Name <span>*</span></p>
                                     <input
+                                        required
                                         type="text"
                                         name="firstname"
                                         value="<?php echo $user['firstname']?>">
@@ -170,6 +171,7 @@
                                 <div class="checkout__form__input">
                                     <p>Last Name <span>*</span></p>
                                     <input
+                                        required
                                         type="text"
                                         name="lastname"
                                         value="<?php echo $user['lastname']?>">
@@ -179,6 +181,7 @@
                                 <div class="checkout__form__input">
                                     <p>Address <span>*</span></p>
                                     <input
+                                        required
                                         type="text"
                                         name="address"
                                         value="<?php echo $user['uaddress'] ?>">
@@ -188,6 +191,7 @@
                                 <div class="checkout__form__input">
                                     <p>Phone <span>*</span></p>
                                     <input
+                                        required
                                         type="text"
                                         name="phone"
                                         value="<?php echo $user['phone'] ?>">
@@ -197,6 +201,7 @@
                                 <div class="checkout__form__input">
                                     <p>Email <span>*</span></p>
                                     <input
+                                        required
                                         type="text"
                                         name="email"
                                         value="<?php echo $user['email'] ?>">

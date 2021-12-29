@@ -33,6 +33,24 @@
         }
     }
 
+    if(isset($_GET['action']) && $_GET['action'] == "checkout"){
+        $cartList = $cartCon->getCart(Session::get('userId'));
+        if($cartList){
+            while($res = $cartList->fetch_assoc()){
+                $product = $productCon->getProductById($res['idproduct']);
+                if($product){
+                    while($result = $product->fetch_assoc()){
+                        if($res['quantity'] > $result['quantity']){
+                            $alert = '<div class="alert alert-danger">The number of products in stock is not enough</div>';
+                        }else{
+                            header('Location:checkout.php');
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if(isset($_GET['remove'])){
         $cart = new Cart(Session::get('userId'), $_GET['remove'], 0);
         $cartCon->deleteItem($cart);
@@ -102,6 +120,11 @@
     <section class="shop-cart spad">
         <form id="my_form" method="post" action="">
             <div class="container">
+                <?php
+                    if(isset($alert)){
+                        echo $alert;
+                    }
+                ?>
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="shop__cart__table">
@@ -123,7 +146,7 @@
                                                 $product = $productCon->getProductById($res['idproduct']);
                                                 if($product){
                                                     while($result = $product->fetch_assoc()){
-                                        ?>
+                                    ?>
                                                         <tr>
                                                             <td class="cart__product__item">
                                                                 <img src="../../public/<?php echo $result['img'] ?>" alt="">
@@ -137,7 +160,7 @@
                                                             <td class="cart__price">
                                                                 <?php
                                                                     $sub += $result['price'];
-                                                                    echo $result['price'];
+                                                                    echo number_format($result['price']);
                                                                 ?>
                                                             </td>
                                                             <td class="cart__quantity">
@@ -157,17 +180,17 @@
                                                                     $pr = $result['price'];
                                                                     $quan = $res['quantity'];
 
-                                                                    echo ($pr * $quan);
+                                                                    echo number_format($pr * $quan);
                                                                 ?>
                                                             </td>
                                                             <td class="cart__close"><a href="?remove=<?php echo $result['id'] ?>"><span class="icon_close"></a></span></td>
                                                         </tr>
-                                        <?php
+                                    <?php
                                                     }
                                                 }
                                             }
                                         }
-                                        ?>
+                                    ?>
                                 </tbody>
                             </table>
                         </div>
@@ -202,10 +225,10 @@
                         <div class="cart__total__procced">
                             <h6>Cart total</h6>
                             <ul>
-                                <li>Subtotal <span><?php echo $sub; ?></span></li>
-                                <li>Total <span><?php echo $total; ?></span></li>
+                                <li>Subtotal <span><?php echo number_format($sub); ?></span></li>
+                                <li>Total <span><?php echo number_format($total); ?></span></li>
                             </ul>
-                            <a href="checkout.php" class="primary-btn">Proceed to checkout</a>
+                            <a href="shop-cart.php?action=checkout" class="primary-btn">Proceed to checkout</a>
                         </div>
                     </div>
                 </div>
