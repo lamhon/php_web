@@ -47,8 +47,8 @@
                                 <span class="icon_bag_alt"></span>
                                 <div class="tip">
                                     <?php
-                                        if(!empty($_Session['cart'])){
-                                            echo count($_Session['cart']);
+                                        if(Session::get('cart-item') != null){
+                                            echo count(Session::get('cart-item'));
                                         }else{
                                             echo 0;
                                         }

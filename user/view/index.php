@@ -1,13 +1,15 @@
-<?php
-    include '../view/layouts/content/session.php';
-?>
+
 
 <?php
     include '../controller/CategoryController.php';
     include '../controller/ProductController.php';
     include '../controller/CartController.php';
 
-    include '../model/cart.php';
+    include_once '../model/cart.php';
+?>
+
+<?php
+    include '../view/layouts/content/session.php';
 ?>
 
 <?php

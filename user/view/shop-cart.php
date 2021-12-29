@@ -1,13 +1,14 @@
-<?php
-    include '../view/layouts/content/session.php';
-?>
-
 <?php 
     include '../controller/ProductController.php';
     include '../controller/CartController.php';
 
     include '../model/cart.php';
 ?>
+
+<?php
+    include '../view/layouts/content/session.php';
+?>
+
 <?php
     $cartCon = new CartController();
     $productCon = new ProductController();
@@ -35,20 +36,25 @@
 
     if(isset($_GET['action']) && $_GET['action'] == "checkout"){
         $cartList = $cartCon->getCart(Session::get('userId'));
-        if($cartList){
-            while($res = $cartList->fetch_assoc()){
-                $product = $productCon->getProductById($res['idproduct']);
-                if($product){
-                    while($result = $product->fetch_assoc()){
-                        if($res['quantity'] > $result['quantity']){
-                            $alert = '<div class="alert alert-danger">The number of products in stock is not enough</div>';
-                        }else{
-                            header('Location:checkout.php');
+        if(Session::get('userlogin') == true){
+            if($cartList){
+                while($res = $cartList->fetch_assoc()){
+                    $product = $productCon->getProductById($res['idproduct']);
+                    if($product){
+                        while($result = $product->fetch_assoc()){
+                            if($res['quantity'] > $result['quantity']){
+                                $alert = '<div class="alert alert-danger">The number of products in stock is not enough</div>';
+                            }else{
+                                header('Location:checkout.php');
+                            }
                         }
                     }
                 }
             }
+        }else{
+            
         }
+        
     }
 
     if(isset($_GET['remove'])){
@@ -140,53 +146,102 @@
                                 </thead>
                                 <tbody>
                                     <?php
-                                        $cartList = $cartCon->getCart(Session::get('userId'));
-                                        if($cartList){
-                                            while($res = $cartList->fetch_assoc()){
-                                                $product = $productCon->getProductById($res['idproduct']);
-                                                if($product){
-                                                    while($result = $product->fetch_assoc()){
+                                        if(Session::get('userlogin') == true){
+                                            $cartList = $cartCon->getCart(Session::get('userId'));
+                                            if($cartList){
+                                                while($res = $cartList->fetch_assoc()){
+                                                    $product = $productCon->getProductById($res['idproduct']);
+                                                    if($product){
+                                                        while($result = $product->fetch_assoc()){
                                     ?>
-                                                        <tr>
-                                                            <td class="cart__product__item">
-                                                                <img src="../../public/<?php echo $result['img'] ?>" alt="">
-                                                                <div class="cart__product__item__title">
-                                                                    <h6><?php echo $result['productname'] ?></h6>
-                                                                    <div class="rating">
-                                                                        <p name="id<?php echo $result['id'] ?>"><?php echo $result['id'] ?></p>
+                                                            <tr>
+                                                                <td class="cart__product__item">
+                                                                    <img src="../../public/<?php echo $result['img'] ?>" alt="">
+                                                                    <div class="cart__product__item__title">
+                                                                        <h6><?php echo $result['productname'] ?></h6>
+                                                                        <div class="rating">
+                                                                            <p name="id<?php echo $result['id'] ?>"><?php echo $result['id'] ?></p>
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            </td>
-                                                            <td class="cart__price">
-                                                                <?php
-                                                                    $sub += $result['price'];
-                                                                    echo number_format($result['price']);
-                                                                ?>
-                                                            </td>
-                                                            <td class="cart__quantity">
-                                                                <div class="pro-qty">
-                                                                    <input 
-                                                                        type="text" 
-                                                                        value="<?php
-                                                                                    $total += $result['price']*$res['quantity'];
-                                                                                    echo $res['quantity'];
-                                                                                ?>"
-                                                                        onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
-                                                                        name="<?php echo "quantity".$result['id'] ?>"">
-                                                                </div>
-                                                            </td>
-                                                            <td class="cart__total">
-                                                                <?php
-                                                                    $pr = $result['price'];
-                                                                    $quan = $res['quantity'];
+                                                                </td>
+                                                                <td class="cart__price">
+                                                                    <?php
+                                                                        $sub += $result['price'];
+                                                                        echo number_format($result['price']);
+                                                                    ?>
+                                                                </td>
+                                                                <td class="cart__quantity">
+                                                                    <div class="pro-qty">
+                                                                        <input 
+                                                                            type="text" 
+                                                                            value="<?php
+                                                                                        $total += $result['price']*$res['quantity'];
+                                                                                        echo $res['quantity'];
+                                                                                    ?>"
+                                                                            onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                                                                            name="<?php echo "quantity".$result['id'] ?>">
+                                                                    </div>
+                                                                </td>
+                                                                <td class="cart__total">
+                                                                    <?php
+                                                                        $pr = $result['price'];
+                                                                        $quan = $res['quantity'];
 
-                                                                    echo number_format($pr * $quan);
-                                                                ?>
-                                                            </td>
-                                                            <td class="cart__close"><a href="?remove=<?php echo $result['id'] ?>"><span class="icon_close"></a></span></td>
-                                                        </tr>
+                                                                        echo number_format($pr * $quan);
+                                                                    ?>
+                                                                </td>
+                                                                <td class="cart__close"><a href="?remove=<?php echo $result['id'] ?>"><span class="icon_close"></a></span></td>
+                                                            </tr>
                                     <?php
+                                                        }
                                                     }
+                                                }
+                                            }
+                                        }else{
+                                            $data['cart'] = Session::get('cart-item');
+                                            foreach($data['cart'] as $product){
+                                                $getProduct = $productCon->getProductById($product->get_idProduct());
+                                                if($getProduct){
+                                                    $productinfo = $getProduct->fetch_assoc();
+                                    ?>
+                                                    <tr>
+                                                        <td class="cart__product__item">
+                                                            <img src="../../public/<?php echo $productinfo['img'] ?>" alt="">
+                                                            <div class="cart__product__item__title">
+                                                                <h6><?php echo $productinfo['productname'] ?></h6>
+                                                                <div class="rating">
+                                                                    <p name="id<?php echo $productinfo['id'] ?>"><?php echo $productinfo['id'] ?></p>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="cart__price">
+                                                            <?php
+                                                                $sub += $productinfo['price'];
+                                                                echo number_format($productinfo['price']);
+                                                            ?>
+                                                        </td>
+                                                        <td class="cart__quantity">
+                                                            <div class="pro-qty">
+                                                                <input 
+                                                                    type="text" 
+                                                                    value="<?php
+                                                                                $total += $productinfo['price'] * $product->get_quantity();
+                                                                                echo $product->get_quantity();
+                                                                            ?>"
+                                                                    onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                                                                    name="<?php echo "quantity".$productinfo['id'] ?>">
+                                                            </div>
+                                                        </td>
+                                                        <td class="cart__total">
+                                                            <?php
+                                                                $pr = $productinfo['price'];
+                                                                $quan = $product->get_quantity();
+                                                                echo number_format($pr * $quan);
+                                                            ?>
+                                                        </td>
+                                                        <td class="cart__close"><a href="?remove=<?php echo $productinfo['id'] ?>"><span class="icon_close"></a></span></td>
+                                                    </tr>
+                                    <?php
                                                 }
                                             }
                                         }

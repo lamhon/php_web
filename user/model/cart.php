@@ -5,10 +5,16 @@
         private $quantity;
 
         public function __construct($idUser, $idProduct, $quantity){
-            $this->idUser = $idUser;
-            $this->idProduct = $idProduct;
-            $this->quantity = $quantity;
+            $this->set_idUser($idUser);
+            $this->set_idProduct($idProduct);
+            $this->set_quantity($quantity);
         }
+
+        // public function __destruct(){
+        //     $this->idUser = null;
+        //     $this->idProduct = null;
+        //     $this->quantity = null;
+        // }
 
         // Getter
         public function get_idUser(){
@@ -24,7 +30,7 @@
         }
 
         //Setter
-        public function set_idUser($id){
+        public function set_idUser($idUser){
             $this->idUser = $idUser;
         }
 

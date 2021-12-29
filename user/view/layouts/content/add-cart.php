@@ -15,8 +15,27 @@
             }
         }else{
             $id = $_GET['add-cart'];
+            $cart = new Cart(0, $id, 1);
 
-            
+            if(!empty($_SESSION["cart-item"])){
+                $cartlst = Session::get('cart-item');
+                if(array_key_exists($id, $cartlst['cart'])){
+                    $quantity = $cartlst[$id]->get_quantity();
+                    var_dump($cartlst[$id]->get_quantity());
+                    $cartlst[$id]->set_quantity($quantity + 1);
+
+                    Session::set('cart-item', $cartlst);
+                }else{
+                    $cartlst[$id] = $cart;
+                    Session::set('cart-item', $cartlst);
+                }
+            }else{
+                $cartlst = array();
+                $cartlst[$id] = $cart;
+                Session::set('cart-item', $cartlst);
+                
+            }
+            header('Location:shop-cart.php');
         }
     }
 ?>
