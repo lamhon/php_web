@@ -1,5 +1,13 @@
 <?php
     include_once '../../db/dbconnect.php';
+
+    use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\Exception;
+    use PHPMailer\PHPMailer\SMTP;
+
+    require_once '../controller/PHPMailer/src/Exception.php';
+    require_once '../controller/PHPMailer/src/PHPMailer.php';
+    require_once '../controller/PHPMailer/src/SMTP.php';
 ?>
 
 
@@ -78,6 +86,83 @@
                     $alert = '<div class="alert alert-danger">Update information failure</div>';
                     return $alert;
                 }
+            }
+        }
+
+        public function checkChangePass($username, $email){
+            $query = "SELECT * FROM tbl_useraccount WHERE username = '$username' AND email = '$email'";
+            $result = $this->db->select($query);
+            if($result){
+                return $result;
+            }else{
+                return false;
+            }
+        }
+
+        public function checkSecretNumber($username, $secretNumber){
+            $query = "SELECT * FROM tbl_useraccount WHERE username = '$username' AND secretnumber = '$secretNumber'";
+            $result = $this->db->select($query);
+            if($result){
+                return $result;
+            }else{
+                return false;
+            }
+        }
+
+        public function changePass($username, $password){
+            $query = "UPDATE tbl_useraccount SET pwd = '$password', secretnumber = null WHERE username = '$username'";
+            $updateQuery = $this->db->update($query);
+            if($updateQuery){
+                return true;
+            }else{
+                return true;
+            }
+        }
+
+        public function sendSecretNumber($email, $name){
+            $secretNumber = rand(100000,999999);
+
+            $mail = new PHPMailer(true);
+            try {
+                //$mail->SMTPDebug = SMTP::DEBUG_SERVER;
+                $mail->isSMTP();
+                // $mail->Host = 'smtp.gmail.com';
+                $mail->Host = "smtp.gmail.com"; 
+                $mail->SMTPAuth = true;
+                $mail->Username = 'hoangtunglamltd@gmail.com';
+                $mail->Password = 'ohgeeeaktvgylmyy';
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 587;
+
+                $mail->setFrom('hoangtunglamltd@gmail.com', 'Sor Web');
+                $mail->addAddress($email, $name);
+                $mail->isHTML(true);
+                $mail->Subject = 'Change your password';
+                $content = '<p>'.'Your secret number is: '.$secretNumber.'</p>';
+                $mail->Body = $content;
+
+                // $mail->SMTPOptions = [
+                //     'ssl' => [
+                //         'verify_peer' => false,
+                //         'verify_peer_name' => false,
+                //         'allow_self_signed' => true,
+                //     ]
+                // ];
+
+                if($mail->send()){
+                    $hashSecret = md5($secretNumber);
+                    $query = "UPDATE tbl_useraccount SET secretnumber = '$hashSecret' WHERE email = '$email'";
+                    $updateQuery = $this->db->update($query);
+                    if($updateQuery){
+                        return true;
+                    }else{
+                        return true;
+                    }
+                }else{
+                    return false;
+                }
+            } catch (Exception $e) {
+                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
             }
         }
 

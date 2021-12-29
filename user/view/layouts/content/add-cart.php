@@ -21,7 +21,6 @@
                 $cartlst = Session::get('cart-item');
                 if(array_key_exists($id, $cartlst['cart'])){
                     $quantity = $cartlst[$id]->get_quantity();
-                    var_dump($cartlst[$id]->get_quantity());
                     $cartlst[$id]->set_quantity($quantity + 1);
 
                     Session::set('cart-item', $cartlst);

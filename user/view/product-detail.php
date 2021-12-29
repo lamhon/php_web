@@ -5,10 +5,13 @@
     include '../controller/CategoryController.php';
     include '../controller/CartController.php';
     include '../controller/UserController.php';
+
+    include '../model/cart.php';
 ?>
 
 <?php
     $productCon = new ProductController();
+    $cartCon = new CartController();
     $cateCon = new CategoryController();
     $userCon = new UserController();
 
@@ -16,6 +19,40 @@
         echo "<script>window.location = 'index.php'</script>";
     }else{
         $id = $_GET['productid'];
+    }
+
+    if($_SERVER['REQUEST_METHOD'] == 'POST'){
+        $quantity = $_POST['quantity'];
+
+        if(Session::get('userlogin') == true){
+            $cart = new Cart(Session::get('userId'), $_GET['productid'], $quantity, $_POST['quantity']);
+            $insert = $cartCon->insertItem($cart);
+            if($insert){
+                header('Location:shop-cart.php');
+            }
+        }else{
+            $cart = new Cart(0, $_GET['productid'], $quantity);
+
+            if(Session::get("cart-item") != null){
+                $cartlst = Session::get('cart-item');
+                if(array_key_exists($_GET['productid'], $cartlst['cart'])){
+                    $getQuan = $cartlst[$_GET['productid']]->get_quantity();
+                    $cartlst[$_GET['productid']]->set_quantity($getQuan + $quantity);
+
+                    Session::set('cart-item', $cartlst);
+                }else{
+                    $cartlst[$_GET['productid']] = $cart;
+                    Session::set('cart-item', $cartlst);
+                }
+            }else{
+                $cartlst = array();
+                $cartlst[$_GET['productid']] = $cart;
+                Session::set('cart-item', $cartlst);
+                
+            }
+            header('Location:shop-cart.php');
+        }
+        
     }
 ?>
 
@@ -240,196 +277,162 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
-                    <div class="product__details__text">
-                        <h3>
-                            <?php echo $result['productname'] ?>
-                            <span>
+                <form method="POST" action="" id="product_form">
+                    <div class="col-lg-6">
+                        <div class="product__details__text">
+                            <h3>
+                                <?php echo $result['productname'] ?>
+                                <span>
+                                    <?php
+                                        $getCate = $cateCon->getCategory($result['categoryid']);
+                                        if($getCate){
+                                            while($cateName = $getCate->fetch_assoc()){
+                                                $name = $cateName['categoryname'];
+                                                echo $name.' ';
+                                            }
+                                        }
+                                    ?>
+                                </span>
+                            </h3>
+                            <div class="rating">
                                 <?php
-                                    $getCate = $cateCon->getCategory($result['categoryid']);
-                                    if($getCate){
-                                        while($cateName = $getCate->fetch_assoc()){
-                                            $name = $cateName['categoryname'];
-                                            echo $name.' ';
+                                    $rate = $productCon->getRate($result['id']);
+                                    $rate = round($rate, 1);
+                                    $countstar = intval($rate);
+                                    $starodd = $rate - $countstar;
+                                    if($countstar == 0 && $starodd == 0){
+                                ?>
+                                    
+                                <?php
+                                    }else if($starodd < 0.5){
+                                        for($i = 0; $i < $countstar; $i++){
+                                ?>
+                                            <i class="fa fa-star"></i>
+                                <?php
+                                        }
+                                        $nonStar = 5 - $countstar;
+                                        for($i = 0; $i < $nonStar; $i++){
+                                ?>
+                                        <i class="far fa-star"></i>
+                                <?php
+                                        }
+                                ?>
+                                            
+                                <?php
+                                    }else if($starodd >= 0.5){
+                                        for($i = 0; $i < $countstar; $i++){
+                                ?>
+                                            <i class="fa fa-star"></i>
+                                <?php
+                                        }
+                                ?>
+                                        <i class="fas fa-star-half-alt"></i>
+                                <?php
+                                        $nonStar = 5 - $countstar - 1;
+                                        for($i = 0; $i < $nonStar; $i++){
+                                ?>
+                                        <i class="far fa-star"></i>
+                                <?php
                                         }
                                     }
                                 ?>
-                            </span>
-                        </h3>
-                        <div class="rating">
-                            <?php
-                                $rate = $productCon->getRate($result['id']);
-                                $rate = round($rate, 1);
-                                $countstar = intval($rate);
-                                $starodd = $rate - $countstar;
-                                if($countstar == 0 && $starodd == 0){
-                            ?>
-                                
-                            <?php
-                                }else if($starodd < 0.5){
-                                    for($i = 0; $i < $countstar; $i++){
-                            ?>
-                                        <i class="fa fa-star"></i>
-                            <?php
+                                <?php
+                                    $ratequan = $productCon->getReviewQuantity($result['id']);
+                                    if($ratequan == 1){
+                                ?>
+                                    <span>( <?php echo $ratequan; ?> review )</span>
+                                <?php
+                                    }else{
+                                ?>
+                                    <span>( <?php echo $ratequan ?> reviews )</span>
+                                <?php
                                     }
-                                    $nonStar = 5 - $countstar;
-                                    for($i = 0; $i < $nonStar; $i++){
-                            ?>
-                                    <i class="far fa-star"></i>
+                                ?>
+                            </div>
                             <?php
-                                    }
+                                if($result['sale'] != 0){
                             ?>
-                                        
-                            <?php
-                                }else if($starodd >= 0.5){
-                                    for($i = 0; $i < $countstar; $i++){
-                            ?>
-                                        <i class="fa fa-star"></i>
-                            <?php
-                                    }
-                            ?>
-                                    <i class="fas fa-star-half-alt"></i>
-                            <?php
-                                    $nonStar = 5 - $countstar - 1;
-                                    for($i = 0; $i < $nonStar; $i++){
-                            ?>
-                                    <i class="far fa-star"></i>
-                            <?php
-                                    }
-                                }
-                            ?>
-                            <?php
-                                $ratequan = $productCon->getReviewQuantity($result['id']);
-                                if($ratequan == 1){
-                            ?>
-                                <span>( <?php echo $ratequan; ?> review )</span>
+                                <div class="product__details__price">
+                                    <script>
+                                        let price = new Number(<?php echo $price = ($result['price'] - ($result['price'] * $result['sale'])/100) ?>);
+                                        var myObj = {
+                                            style: "currency",
+                                            currency: "VND"
+                                        }
+                                                
+                                        document.write(price.toLocaleString("vi-VN", myObj));
+                                    </script>
+                                    <span>
+                                        <script>
+                                            let oldPrice = new Number(<?php echo $result['price'] ?>);
+                                            var myObj = {
+                                                style: "currency",
+                                                currency: "VND"
+                                            }
+
+                                            document.write(oldPrice.toLocaleString("vi-VN", myObj));
+                                        </script>
+                                    </span>
+                                </div>
                             <?php
                                 }else{
                             ?>
-                                <span>( <?php echo $ratequan ?> reviews )</span>
+                                <div class="product__details__price">
+                                    <script>
+                                            let price = new Number(<?php echo $result['price'] ?>);
+                                            var myObj = {
+                                                style: "currency",
+                                                currency: "VND"
+                                            }
+
+                                            document.write(price.toLocaleString("vi-VN", myObj));
+                                    </script>
+                                </div>
                             <?php
                                 }
                             ?>
-                        </div>
-                        <?php
-                            if($result['sale'] != 0){
-                        ?>
-                            <div class="product__details__price">
-                                <script>
-                                    let price = new Number(<?php echo $price = ($result['price'] - ($result['price'] * $result['sale'])/100) ?>);
-                                    var myObj = {
-                                        style: "currency",
-                                        currency: "VND"
-                                    }
-                                            
-                                    document.write(price.toLocaleString("vi-VN", myObj));
-                                </script>
-                                <span>
-                                    <script>
-                                        let oldPrice = new Number(<?php echo $result['price'] ?>);
-                                        var myObj = {
-                                            style: "currency",
-                                            currency: "VND"
-                                        }
-
-                                        document.write(oldPrice.toLocaleString("vi-VN", myObj));
-                                    </script>
-                                </span>
-                            </div>
-                        <?php
-                            }else{
-                        ?>
-                            <div class="product__details__price">
-                                <script>
-                                        let price = new Number(<?php echo $result['price'] ?>);
-                                        var myObj = {
-                                            style: "currency",
-                                            currency: "VND"
-                                        }
-
-                                        document.write(price.toLocaleString("vi-VN", myObj));
-                                </script>
-                            </div>
-                        <?php
-                            }
-                        ?>
-                        
-                        <p><?php echo $result['info'] ?></p>
-                        <div class="product__details__button">
-                            <div class="quantity">
-                                <span>Quantity:</span>
-                                <div class="pro-qty">
-                                    <input 
-                                        type="text" 
-                                        value="1"
-                                        onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
-                                        >
+                            
+                            <p><?php echo $result['info'] ?></p>
+                            <div class="product__details__button">
+                                <div class="quantity">
+                                    <span>Quantity:</span>
+                                    <div class="pro-qty">
+                                        <input 
+                                            type="text" 
+                                            value="1"
+                                            name="quantity"
+                                            onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))"
+                                            >
+                                    </div>
                                 </div>
+                                <a
+                                    href="#"
+                                    class="cart-btn"
+                                    href="javascript:{}"
+                                    onclick="document.getElementById('product_form').submit();">
+                                    <span class="icon_bag_alt"></span> Add to cart</a>
+                                <!-- <ul>
+                                    <li><a href="#"><span class="icon_heart_alt"></span></a></li>
+                                    <li><a href="#"><span class="icon_adjust-horiz"></span></a></li>
+                                </ul> -->
                             </div>
-                            <a href="#" class="cart-btn"><span class="icon_bag_alt"></span> Add to cart</a>
-                            <!-- <ul>
-                                <li><a href="#"><span class="icon_heart_alt"></span></a></li>
-                                <li><a href="#"><span class="icon_adjust-horiz"></span></a></li>
-                            </ul> -->
-                        </div>
-                        <div class="product__details__widget">
-                            <ul>
-                                <li>
-                                    <span>Stock:</span>
-                                    <div class="stock__checkbox">
-                                        <label>
-                                            <?php echo $result['quantity'] ?>
-                                            <!-- <input type="checkbox" id="stockin">
-                                            <span class="checkmark"></span> -->
-                                        </label>
-                                    </div>
-                                </li>
-                                <!-- <li>
-                                    <span>Available color:</span>
-                                    <div class="color__checkbox">
-                                        <label for="red">
-                                            <input type="radio" name="color__radio" id="red" checked>
-                                            <span class="checkmark"></span>
-                                        </label>
-                                        <label for="black">
-                                            <input type="radio" name="color__radio" id="black">
-                                            <span class="checkmark black-bg"></span>
-                                        </label>
-                                        <label for="grey">
-                                            <input type="radio" name="color__radio" id="grey">
-                                            <span class="checkmark grey-bg"></span>
-                                        </label>
-                                    </div>
-                                </li> -->
-                                <!-- <li>
-                                    <span>Available size:</span>
-                                    <div class="size__btn">
-                                        <label for="xs-btn" class="active">
-                                            <input type="radio" id="xs-btn">
-                                            xs
-                                        </label>
-                                        <label for="s-btn">
-                                            <input type="radio" id="s-btn">
-                                            s
-                                        </label>
-                                        <label for="m-btn">
-                                            <input type="radio" id="m-btn">
-                                            m
-                                        </label>
-                                        <label for="l-btn">
-                                            <input type="radio" id="l-btn">
-                                            l
-                                        </label>
-                                    </div>
-                                </li> -->
-                                <!-- <li>
-                                    <span>Promotions:</span>
-                                    <p>Free shipping</p>
-                                </li> -->
-                            </ul>
+                            <div class="product__details__widget">
+                                <ul>
+                                    <li>
+                                        <span>Stock:</span>
+                                        <div class="stock__checkbox">
+                                            <label>
+                                                <?php echo $result['quantity'] ?>
+                                                <!-- <input type="checkbox" id="stockin">
+                                                <span class="checkmark"></span> -->
+                                            </label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
                 <div class="col-lg-12">
                     <div class="product__details__tab">
                         <ul class="nav nav-tabs" role="tablist">
@@ -634,7 +637,6 @@
                                                             <?php
                                                                 }
                                                             ?>
-                                                            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui et doloribus maxime amet natus magni nulla illum excepturi accusamus explicabo, quos, placeat repellendus voluptates omnis laborum tenetur quia alias. Sed.</p>
                                                         </div>
                                                         <p><?php echo $comment['mess'] ?></p>
                                                         <br>
