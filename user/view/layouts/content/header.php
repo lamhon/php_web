@@ -80,7 +80,7 @@
                                         $cart = $cartCon->getCart(Session::get('userId'));
                                         if($cart){
                                             while($result = $cart->fetch_assoc()){
-                                                $count += $result['quantity'];
+                                                $count ++;
                                             }
                                         }
 

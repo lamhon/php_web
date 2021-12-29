@@ -17,21 +17,37 @@
     $total = 0;
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $cartlst = $cartCon->getCart(Session::get('userId'));
+        if(Session::get('userlogin') == true){
+            $cartlst = $cartCon->getCart(Session::get('userId'));
 
-        if($cartlst){
-            while($result = $cartlst->fetch_assoc()){
-                $idQuan = "quantity".$result["idproduct"];
+            if($cartlst){
+                while($result = $cartlst->fetch_assoc()){
+                    $idQuan = "quantity".$result["idproduct"];
 
-                $cart = new Cart(Session::get('userId'), $result['idproduct'], $_POST[$idQuan]);
+                    $cart = new Cart(Session::get('userId'), $result['idproduct'], $_POST[$idQuan]);
+
+                    if($_POST[$idQuan] > 0){
+                        $cartCon->updateItem($cart);
+                    }else{
+                        $cartCon->deleteItem($cart);
+                    }
+                }
+            }
+        }else{
+            $cartlst = Session::get('cart-item');
+
+            foreach($cartlst as $product){
+                $idQuan = "quantity".$product->get_idProduct();
 
                 if($_POST[$idQuan] > 0){
-                    $cartCon->updateItem($cart);
+                    $product->set_quantity($_POST[$idQuan]);
                 }else{
-                    $cartCon->deleteItem($cart);
+                    unset($cartlst[$product->get_idProduct()]);
+                    Session::set('cart-item', $cartlst);
                 }
             }
         }
+        
     }
 
     if(isset($_GET['action']) && $_GET['action'] == "checkout"){
@@ -52,14 +68,23 @@
                 }
             }
         }else{
-            
+            header('Location:login.php');
         }
         
     }
 
     if(isset($_GET['remove'])){
-        $cart = new Cart(Session::get('userId'), $_GET['remove'], 0);
-        $cartCon->deleteItem($cart);
+        if(Session::get('userlogin') == true){
+            $cart = new Cart(Session::get('userId'), $_GET['remove'], 0);
+            $cartCon->deleteItem($cart);
+        }else{
+            $cartlst = Session::get('cart-item');
+
+            unset($cartlst[$_GET['remove']]);
+
+            Session::set('cart-item', $cartlst);
+            header('Location:shop-cart.php');
+        }
     }
 ?>
 <!DOCTYPE html>
