@@ -9,14 +9,15 @@
 ?>
 
 <?php
+    $cartCon = new CartController();
     $billCon = new BillController();
-    $proCon = new ProductController();
-    $lstInfo = $billCon->getBillInfo($_GET['ratebill']);
+    $productCon = new ProductController();
+    
 
     if(!isset($_GET['ratebill']) || ($_GET['ratebill'] == NULL)){
         echo "<script>window.location = 'delivered.php'</script>";
     }else{
-        if($proCon->checkIdBill($_GET['ratebill'], Session::get('userId'))){
+        if($productCon->checkIdBill($_GET['ratebill'], Session::get('userId'))){
             $id = $_GET['ratebill'];
         }else{
             echo "<script>window.location = 'delivered.php'</script>";
@@ -24,26 +25,7 @@
     }
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        if($lstInfo){
-            while($info = $lstInfo->fetch_assoc()){
-                $getProduct = $proCon->getProductById($info['productid']);
-                $product = $getProduct->fetch_assoc();
-
-                if(!isset($_POST['rate'.$product['id']])){
-                    $rate = '';
-                }else{
-                    $rate = $_POST['rate'.$product['id']];
-                }
-
-                if($_POST["btnSubmit"] == 'product'.$product['id']){
-                    $fileimg = 'image'.$product['id'];
-                    $insertFeedback = $proCon->insertFeedback($info['id'], Session::get('userId'), $product['id'], $rate, $_POST['feedback'.$product['id']], $_FILES[$fileimg], $fileimg);
-                    // var_dump();
-                }
-
-                // var_dump($rate);
-            }
-        }
+        $insertFeedback = $billCon->Switch("feedback");
     }
 ?>
 <!DOCTYPE html>
@@ -201,7 +183,7 @@
             $lstInfo = $billCon->getProductRate($_GET['ratebill']);
             if($lstInfo){
                 while($info = $lstInfo->fetch_assoc()){
-                    $getProduct = $proCon->getProductById($info['productid']);
+                    $getProduct = $productCon->getProductById($info['productid']);
                     $product = $getProduct->fetch_assoc();
         ?>
         <form class="row g-3" enctype="multipart/form-data" method="POST">

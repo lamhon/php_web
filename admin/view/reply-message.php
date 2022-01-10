@@ -16,21 +16,10 @@
     }else{
         $id = $_GET['messid'];
     }
-
-    $getMess = $messCon->getMessById($_GET['messid']);
-
     //Button save
-    if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        if($getMess){
-            $mess = $getMess->fetch_assoc();
-
-            $emailRep = $mess['email'];
-            $subjectRep = $_POST['subject'];
-            $messageRep = $_POST['reply'];
-            $nameRep = $mess['username'];
-            $messid = $id;
-            $sendReply = $messCon->sendMessage($messid, $emailRep, $subjectRep, $messageRep, $nameRep);
-        }
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['reply_message'] == 'reply_message'){
+        $sendReply = $messCon->sendMessage();
+        // var_dump($_POST['subject']);
     }
 ?>
 
@@ -276,7 +265,7 @@
                         </div>
 
                         <div class="input-group">
-                            <button type="submit" class="btn btn-primary">Send</button>
+                            <button type="submit" name="reply_message" value="reply_message" class="btn btn-primary">Send</button>
                             <a class="btn btn-secondary" href="message.php">Back</a>
                         </div>
                     </div>

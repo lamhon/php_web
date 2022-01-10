@@ -1,176 +1,106 @@
 <?php
-    include_once '../../db/dbconnect.php';
+    include_once '../model/product.php';
+    include_once '../model/cart.php';
 ?>
 
 <?php
     class ProductController{
-        private $db;
+        private $productMo;
 
-        //initialize
         public function __construct(){
-            $this->db = new Database();
+            $this->productMo = new Product();
+        }
+        
+        public function getProduct($item){
+            $item_per_page = !empty($_GET['per_page'])?$_GET['per_page']:$item;
+            $current_page = !empty($_GET['page'])?$_GET['page']:1;
+            $offset = ($current_page - 1) * $item_per_page;
+
+            $product = $this->productMo->get_Product_Paging($item_per_page, $offset, 1);
+
+            $totalRecord = $this->productMo->get_AllProduct(1);
+            $totalRecord = $totalRecord->num_rows;
+            $totalPage = ceil($totalRecord / $item_per_page);
+    
+            $data["get_product_paging"] = $this->productMo->get_Product_Paging($item_per_page, $offset, 1);
+            $data["totalRecord"] = $totalRecord;
+            $data["totalPage"] = $totalPage;
+
+            return $data;
         }
 
-        public function get_Product_Paging($item_per_page, $offset, $stt){
-            $query = "SELECT * FROM tbl_product WHERE stt = $stt ORDER BY id DESC LIMIT $item_per_page OFFSET $offset";
-            $result = $this->db->select($query);
-            return $result;
+        public function getRate($idProduct){
+            $rate = $this->productMo->getRate($idProduct);
+            return $rate;
         }
 
-        public function get_Product_Cate_Paging($item_per_page, $offset, $cateid, $stt){
-            $query = "SELECT * FROM tbl_product WHERE stt = $stt AND categoryid = $cateid ORDER BY id DESC LIMIT $item_per_page OFFSET $offset";
-            $result = $this->db->select($query);
-            return $result;
+        public function getCategory($cateId){
+            $cate = $this->productMo->getCategoryObject($cateId);
+            return $cate;
         }
 
-        public function get_Product_Price_Paging($item_per_page, $offset, $minPrice, $maxPrice, $stt){
-            $query = "SELECT * FROM tbl_product WHERE stt = $stt AND (price >= $minPrice AND price <= $maxPrice) ORDER BY id DESC LIMIT $item_per_page OFFSET $offset";
-            $result = $this->db->select($query);
-            return $result;
+        public function getAllCategory(){
+            $cate = $this->productMo->getAll_category();
+            return $cate;
         }
 
-        public function get_AllProduct($stt){
-            $query = "SELECT * FROM tbl_product WHERE stt = '$stt'";
-            $result = $this->db->select($query);
-            return $result;
-        }
+        public function ShopView(){
+            $item_per_page = !empty($_GET['per_page'])?$_GET['per_page']:9;
+            $current_page = !empty($_GET['page'])?$_GET['page']:1;
+            $offset = ($current_page - 1) * $item_per_page;
+            
+            if(isset($_GET['cate'])){
+                $prolst = $this->productMo->get_Product_Cate_Paging($item_per_page, $offset, $_GET['cate'], 1);
+                $totalRecords = $this->productMo->get_AllProduct_ByCate($_GET['cate'], 1);
+            }else if(isset($_GET['minPrice']) && isset($_GET['maxPrice'])){
+                $minPrice = floatval($_GET['minPrice']);
+                $maxPrice = floatval($_GET['maxPrice']);
+                if($minPrice > $maxPrice){
+                    $minPrice = $minPrice + $maxPrice;
+                    $maxPrice = $minPrice - $maxPrice;
+                    $minPrice = $minPrice - $maxPrice;
+                }
 
-        public function get_AllProduct_ByCate($categoryid, $stt){
-            $query = "SELECT * FROM tbl_product WHERE stt = '$stt' AND categoryid = '$categoryid'";
-            $result = $this->db->select($query);
-            return $result;
-        }
+                $prolst = $this->productMo->get_Product_Price_Paging($item_per_page, $offset, $minPrice, $maxPrice, 1);
+                $totalRecords = $this->productMo->get_AllProduct_ByPrice($minPrice, $maxPrice, 1);
+            }else{
+                $prolst = $this->productMo->get_Product_Paging($item_per_page, $offset, 1);
+                $totalRecords = $this->productMo->get_AllProduct(1);
+            }
 
-        public function get_AllProduct_ByPrice($minPrice, $maxPrice, $stt){
-            $query = "SELECT * FROM tbl_product WHERE stt = '$stt' AND (price >= '$minPrice' AND price <= '$maxPrice')";
-            $result = $this->db->select($query);
-            return $result;
+            $data["totalRecords"] = $totalRecords;
+            $data["item_per_page"] = $item_per_page;
+            $data["product_list"] = $prolst;
+            return $data;
         }
-
+        
         public function getProductById($id){
-            $query = "SELECT * FROM tbl_product WHERE id = '$id' AND stt = 1";
-            $result = $this->db->select($query);
-            return $result;
+            $product = $this->productMo->getProductById($id);
+            return $product;
         }
 
-        public function checkIdBill($billid, $userid){
-            $query = "SELECT * FROM tbl_orderbill WHERE (id = '$billid' AND userid = '$userid') AND deliverydate IS NOT NULL";
-            $result = $this->db->select($query);
-            if($result){
-                return true;
-            }else{
-                return false;
-            }
+        public function getReviewQuantity($productId){
+            $review = $this->productMo->getReviewQuantity($productId);
+            return $review;
         }
 
-        public function insertFeedback($infoid, $userid, $productid, $rate, $mess, $files, $fileimg){
-            $permited = array('jpg', 'jpeg', 'png', 'gif');
-            $file_name = $_FILES[$fileimg]['name'];
-            $file_size = $_FILES[$fileimg]['size'];
-            $file_temp = $_FILES[$fileimg]['tmp_name'];
-
-            $div = explode('.', $file_name);
-            $file_ext = strtolower(end($div));
-            $unique_image = substr(md5(time()), 0, 10). '.'.$file_ext;
-            $uploaded_image = "../../public/feedback/".$unique_image;
-
-            if($rate == NULL){
-                $alert = '<div class="alert alert-danger">Please rate this product</div>';
-                return $alert;
-            }else if($mess == ''){
-                $alert = '<div class="alert alert-danger">Please feedback this product</div>';
-                return $alert;
-            }else if($file_name == ''){
-                $alert = '<div class="alert alert-danger">Please insert photo of this product</div>';
-                return $alert;
-            }else{
-                move_uploaded_file($file_temp, $uploaded_image);
-                $query = "INSERT INTO tbl_feedback(userid, productid, rate, mess, img) VALUES ('$userid', '$productid', '$rate', '$mess', '$unique_image')";
-                $update = "UPDATE tbl_orderinfo SET feedback = 1 WHERE id = '$infoid'";
-                $result = $this->db->insert($query);
-                $update = $this->db->update($update);
-                if($result){
-                    if($update){
-                        $alert = '<div class="alert alert-success">Feedback successfully</div>';
-                        return $alert;
-                    }else{
-                        $alert = '<div class="alert alert-danger">Something wrong</div>';
-                        return $alert;
-                    }
-                }else{
-                    $alert = '<div class="alert alert-danger">Feedback failure</div>';
-                    return $alert;
-                }
-            }
-        }
-
-        public function currencyFormat($price){
-            $result = str_replace(array(','), '', $price);
-            return $result;
-        }
-
-        public function getRate($idproduct){
-            $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct'";
-            $result = $this->db->select($query);
-
-            $i = 0;
-            $totalrate = 0;
-            $rating = 0;
-            if($result){
-                while($rating = $result->fetch_assoc()){
-                    $i++;
-                    $totalrate += $rating['rate'];
-                }
-                $rating = $totalrate/$i;
-            }
-            return $rating;
-        }
-
-        public function getReviewQuantity($idproduct){
-            $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct'";
-            $result = $this->db->select($query);
-
-            $i = 0;
-            if($result){
-                while($rating = $result->fetch_assoc()){
-                    $i++;
-                }
-            }
-            return $i;
-        }
-
-        public function getPercentReview($idproduct, $star){
-            $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct' AND rate = '$star'";
-            $result = $this->db->select($query);
-            $quan = 0;
-            if($result){
-                while($rating = $result->fetch_assoc()){
-                    $quan++;
-                }
-            }
-
-            $total = $this->getReviewQuantity($idproduct);
-            return ($quan / $total)*100;
-        }
-
-        public function getQuanOfStar($idproduct, $star){
-            $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct' AND rate = '$star'";
-            $result = $this->db->select($query);
-            $quan = 0;
-            if($result){
-                while($rating = $result->fetch_assoc()){
-                    $quan++;
-                }
-            }
+        public function getQuanOfStar($idProduct, $star){
+            $quan = $this->productMo->getQuanOfStar($idProduct, $star);
             return $quan;
         }
 
-        public function getReview($idproduct){
-            $query = "SELECT * FROM tbl_feedback WHERE productid = '$idproduct'";
-            $result = $this->db->select($query);
-            return $result;
+        public function getReview($productId){
+            $review = $this->productMo->getReview($productId);
+            return $review;
         }
 
-        
+        public function getPercentReview($productId, $star){
+            $percent = $this->productMo->getPercentReview($productId, $star);
+            return $percent;
+        }
+
+        public function checkIdBill($billid, $userid){
+            $check = $this->productMo->checkIdBill($billid, $userid);
+            return $check;
+        }
     }
-?>

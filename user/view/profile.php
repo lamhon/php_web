@@ -5,31 +5,16 @@
 <?php
     include '../controller/UserController.php';
     include '../controller/CartController.php';
-
-    include '../model/user.php';
 ?>
 
 <?php
     $userCon = new UserController();
+    $cartCon = new CartController();
     $user = $userCon->getUser(Session::get('userId'));
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $setUser = new User(
-                                $_POST['userUsername'],
-                                '',
-                                $_POST['userFirstname'],
-                                $_POST['userLastname'],
-                                $_POST['userEmail']);
-        $setUser->set_sex($_POST['userSex']);
-        $setUser->set_id(Session::get('userId'));
-        $birthday = strtotime($_POST['userBirthdayMonth'].'/'.$_POST['userBirthdayDay'].'/'.$_POST['userBirthdayYear']);
-        $formatdate = date('Y-m-d', $birthday);
-        $setUser->set_birthday($formatdate);
-        $setUser->set_email($_POST['userEmail']);
-        $setUser->set_phone($_POST['userPhone']);
-        $setUser->set_address($_POST['userAddress']);
-
-        $updateInfo = $userCon->updateInfor($setUser);
+        $updateInfo = $userCon->Switch($_POST['update_profile']);
+        // var_dump($_POST['update_profile']);
     }
 ?>
 <!DOCTYPE html>
@@ -122,7 +107,7 @@
         <?php
             if(isset($updateInfo)){ 
                 //parse_str($urBirth, $res);
-                echo ($updateInfo);
+                echo $updateInfo;
                 $user = $userCon->getUser(Session::get('userId'));
             }
         ?>
@@ -354,7 +339,7 @@
                 }
             ?>
             <div class="input-group">
-                <button type="submit" class="btn btn-danger">Save</button>
+                <button type="submit" class="btn btn-danger" name="update_profile" value="update_profile">Save</button>
             </div>
         </form>
     </div>

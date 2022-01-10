@@ -1,42 +1,39 @@
 <?php
-    include_once '../../db/dbconnect.php';
+    include_once '../model/order.php';
 ?>
 
 <?php
     class OrderController{
-        private $db;
+        private $orderMo;
 
         //initialize
         public function __construct(){
-            $this->db = new Database();
+            $this->orderMo = new Order();
         }
 
         public function getlstOrder($deliverystt){
-            $query = "SELECT * FROM tbl_orderbill WHERE deliverystt = $deliverystt";
-            $result = $this->db->select($query);
-            return $result;
+            $getlst = $this->orderMo->getlstOrder($deliverystt);
+            return $getlst;
         }
 
         public function changeDeliveryStt($id, $stt){
-            $query = "UPDATE tbl_orderbill SET deliverystt = '$stt' WHERE id = '$id'";
-            $update = $this->db->update($query);
-            return $update;
+            $change = $this->orderMo->changeDeliveryStt($id, $stt);
+            return $change;
         }
 
         public function updateDeliveryDate($id){
-            $query = "UPDATE tbl_orderbill SET deliverydate = CURRENT_TIMESTAMP, paid = 1 WHERE id = '$id'";
-            $update = $this->db->update($query);
+            $update = $this->orderMo->updateDeliveryDate($id);
             return $update;
         }
 
         public function checkOrderid($id){
-            $query = "SELECT * FROM tbl_orderbill WHERE id = $id";
-            $result = $this->db->select($query);
-            if($result){
-                return true;
-            }else{
-                return false;
-            }
+            $check = $this->orderMo->checkOrderid($id);
+            return $check;
+        }
+
+        public function getOrderInfo($orderid){
+            $getOrderInfo = $this->orderMo->getOrderInfo($orderid);
+            return $getOrderInfo;
         }
     }
 ?>

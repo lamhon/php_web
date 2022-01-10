@@ -1,20 +1,12 @@
 <?php
     include '../controller/UserController.php';
-
-	include '../model/user.php';
 ?>
 
 <?php
     $userCon = new UserController();
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-		if(strcmp(md5($_POST['password']), md5($_POST['pass'])) != 0){
-			$alert = '<div class="alert alert-danger">Confirm password wrong!</div>';
-		}else{
-			$user = new User($_POST['userName'], md5($_POST['password']), $_POST['firstName'], $_POST['lastName'], $_POST['email']);
-		
-			$insertUser = $userCon->insert_user($user);
-		}
+		$alert = $userCon->Switch($_POST['register']);
 	}
 ?>
 
@@ -42,8 +34,6 @@
 					<?php
 						if(isset($alert)){
 							echo $alert;
-						}else if(isset($insertUser)){
-							echo $insertUser;
 						}
 					?>
 					<div class="wrap-input100 validate-input" data-validate = "Not empty">
@@ -94,7 +84,7 @@
 			
 
 					<div class="container-login100-form-btn">
-						<button class="login100-form-btn" type="submit">
+						<button class="login100-form-btn" type="submit" name="register" value="register">
 							Submit
 						</button>
 					</div>

@@ -1,16 +1,19 @@
-<?php
-    include '../view/layouts/content/session.php';
+<?php  
+    include_once '../controller/CategoryController.php';
+    include_once '../controller/CartController.php';
+    include_once '../controller/ProductController.php';
 
-    include '../controller/CartController.php';
-    include '../controller/CategoryController.php';
-    include '../controller/ProductController.php';
-
-    include '../model/cart.php';
+    include_once '../model/cart.php';
+    include_once '../model/product.php';
 ?>
 
 <?php
-    $cateCon = new CategoryController();
-    $proCon = new ProductController();
+    include_once '../view/layouts/content/session.php';
+?>
+
+<?php
+    $productCon = new ProductController();
+    $cartCon = new CartController();
 ?>
 
 <?php
@@ -104,7 +107,8 @@
                             <div class="categories__accordion">
                                 <div class="accordion" id="accordionExample">
                                     <?php
-                                        $catelst = $cateCon->getAll_category();
+                                        $productMo = new Product();
+                                        $catelst = $productMo->getAll_category();
                                         if($catelst){
                                             while($cate = $catelst->fetch_assoc()){
                                     ?>
@@ -259,27 +263,30 @@
                             $current_page = !empty($_GET['page'])?$_GET['page']:1;
                             $offset = ($current_page - 1) * $item_per_page;
 
-                            if(isset($_GET['cate'])){
-                                $prolst = $proCon->get_Product_Cate_Paging($item_per_page, $offset, $_GET['cate'], 1);
-                                $totalRecords = $proCon->get_AllProduct_ByCate($_GET['cate'], 1);
-                            }else if(isset($_GET['minPrice']) && isset($_GET['maxPrice'])){
-                                $minPrice = floatval($_GET['minPrice']);
-                                $maxPrice = floatval($_GET['maxPrice']);
-                                if($minPrice > $maxPrice){
-                                    $minPrice = $minPrice + $maxPrice;
-                                    $maxPrice = $minPrice - $maxPrice;
-                                    $minPrice = $minPrice - $maxPrice;
-                                }
+                            // if(isset($_GET['cate'])){
+                            //     $prolst = $proCon->get_Product_Cate_Paging($item_per_page, $offset, $_GET['cate'], 1);
+                            //     $totalRecords = $proCon->get_AllProduct_ByCate($_GET['cate'], 1);
+                            // }else if(isset($_GET['minPrice']) && isset($_GET['maxPrice'])){
+                            //     $minPrice = floatval($_GET['minPrice']);
+                            //     $maxPrice = floatval($_GET['maxPrice']);
+                            //     if($minPrice > $maxPrice){
+                            //         $minPrice = $minPrice + $maxPrice;
+                            //         $maxPrice = $minPrice - $maxPrice;
+                            //         $minPrice = $minPrice - $maxPrice;
+                            //     }
 
-                                $prolst = $proCon->get_Product_Price_Paging($item_per_page, $offset, $minPrice, $maxPrice, 1);
-                                $totalRecords = $proCon->get_AllProduct_ByPrice($minPrice, $maxPrice, 1);
-                            }else{
-                                $prolst = $proCon->get_Product_Paging($item_per_page, $offset, 1);
-                                $totalRecords = $proCon->get_AllProduct(1);
-                            }
+                            //     $prolst = $proCon->get_Product_Price_Paging($item_per_page, $offset, $minPrice, $maxPrice, 1);
+                            //     $totalRecords = $proCon->get_AllProduct_ByPrice($minPrice, $maxPrice, 1);
+                            // }else{
+                            //     $prolst = $proCon->get_Product_Paging($item_per_page, $offset, 1);
+                            //     $totalRecords = $proCon->get_AllProduct(1);
+                            // }
 
-                            $totalRecords = $totalRecords->num_rows;
-                            $totalPage = ceil($totalRecords / $item_per_page);
+                            $data = $productCon->ShopView();
+
+                            $totalRecords = $data["totalRecords"]->num_rows;
+                            $totalPage = ceil($totalRecords / $data["item_per_page"]);
+                            $prolst = $data["product_list"];
 
                             if($prolst){
                                 while($product = $prolst->fetch_assoc()){
@@ -289,7 +296,7 @@
                                     <div class="product__item__pic set-bg" data-setbg="../../public/<?php echo $product['img'] ?>">
                                         <!-- <div class="label">Sale</div> -->
                                         <?php
-                                            $getCate = $cateCon->getCategory($product['categoryid']);
+                                            $getCate = $productCon->getCategory($product['categoryid']);
                                             $cateRes = $getCate->fetch_assoc();
                                             if($cateRes['id'] == 1){
                                         ?>
@@ -322,7 +329,7 @@
                                         <h6><a href="product-detail.php?productid=<?php echo $product['id'] ?>"><?php echo $product['productname'] ?></a></h6>
                                         <div class="rating">
                                             <?php
-                                                $rate = $proCon->getRate($product['id']);
+                                                $rate = $productCon->getRate($product['id']);
                                                 $rate = round($rate, 1);
                                                 $countstar = intval($rate);
                                                 $starodd = $rate - $countstar;

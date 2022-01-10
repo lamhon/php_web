@@ -1,23 +1,19 @@
-
-
 <?php
-    include '../controller/CategoryController.php';
-    include '../controller/ProductController.php';
-    include '../controller/CartController.php';
-
-    include_once '../model/cart.php';
+    include_once '../controller/CategoryController.php';
+    include_once '../controller/CartController.php';
+    include_once '../controller/ProductController.php';
 ?>
 
 <?php
-    include '../view/layouts/content/session.php';
+    include_once '../view/layouts/content/session.php';
 ?>
 
 <?php
-    include '../view/layouts/content/add-cart.php';
+    $productCon = new ProductController();
+    $cartCon = new CartController();
 
-    $cateCon = new CategoryController();
+    include_once '../view/layouts/content/add-cart.php';
 ?>
-
 
 <!DOCTYPE html>
 <html lang="zxx">
@@ -167,9 +163,7 @@
                 <ul class="filter__controls">
                     <li class="active" data-filter="*">All</li>
                     <?php
-                        $cate = new CategoryController();
-
-                        $showCate = $cate->getAll_category();
+                        $showCate = $productCon->getAllCategory();
                         if($showCate){
                             while($resCate = $showCate->fetch_assoc()){
                     ?>
@@ -188,29 +182,27 @@
             </div>
         </div>
         <?php
-            $productCon = new ProductController();
+            $data = $productCon->getProduct(8);
+            $product = $data["get_product_paging"];
+            $totalRecord = $data["totalRecord"];
 
             $item_per_page = !empty($_GET['per_page'])?$_GET['per_page']:8;
             $current_page = !empty($_GET['page'])?$_GET['page']:1;
-            $offset = ($current_page - 1) * $item_per_page;
 
-            $product = $productCon->get_Product_Paging($item_per_page, $offset, 1);
+            $totalPage = ceil($totalRecord / $item_per_page);
 
-            $totalRecords = $productCon->get_AllProduct(1);
-            $totalRecords = $totalRecords->num_rows;
-            $totalPage = ceil($totalRecords / $item_per_page);
         ?>
         <div class="row property__gallery">
             <?php
-                
                 if($product){
                     while($result = $product->fetch_assoc()){
             ?>
             <div class="col-lg-3 col-md-4 col-sm-6 mix <?php echo 'cate'.$result['categoryid'] ?>">
-                <div class="product__item">
+            
+            <div class="product__item">
                     <div class="product__item__pic set-bg" data-setbg="../../public/<?php echo $result['img'] ?>">
                         <?php
-                            $getCate = $cateCon->getCategory($result['categoryid']);
+                            $getCate = $productCon->getCategory($result['categoryid']);
                             $cateRes = $getCate->fetch_assoc();
                             if($cateRes['id'] == 1){
                         ?>
@@ -311,6 +303,7 @@
                         ?>
                     </div>
                 </div>
+                
             </div>
             <?php
                     }
@@ -341,7 +334,7 @@
 <!-- Product Section End -->
 
 <!-- Banner Section Begin -->
-<section class="banner set-bg" data-setbg="./assets/img/banner/banner-1.jpg">
+<!-- <section class="banner set-bg" data-setbg="./assets/img/banner/banner-1.jpg">
     <div class="container">
         <div class="row">
             <div class="col-xl-7 col-lg-8 m-auto">
@@ -371,11 +364,11 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 <!-- Banner Section End -->
 
 <!-- Trend Section Begin -->
-<section class="trend spad">
+<!-- <section class="trend spad">
     <div class="container">
         <div class="row">
             <div class="col-lg-4 col-md-4 col-sm-6">
@@ -545,11 +538,11 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 <!-- Trend Section End -->
 
 <!-- Discount Section Begin -->
-<section class="discount">
+<!-- <section class="discount">
     <div class="container">
         <div class="row">
             <div class="col-lg-6 p-0">
@@ -587,7 +580,7 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 <!-- Discount Section End -->
 
 <!-- Services Section Begin -->

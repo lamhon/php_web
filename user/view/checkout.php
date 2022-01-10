@@ -1,20 +1,19 @@
 <?php
-    include '../view/layouts/content/session.php';
+    include_once '../view/layouts/content/session.php';
 ?>
 
 <?php
-    include '../controller/CartController.php';
-    include '../controller/ProductController.php';
-    include '../controller/UserController.php';
-    include '../controller/BillController.php';
-
-    include '../model/orderinfo.php';
+    include_once '../controller/CartController.php';
+    include_once '../controller/UserController.php';
+    include_once '../controller/ProductController.php';
+    include_once '../controller/BillController.php';
 ?>
 
 <?php
-    $billCon = new BillController();
     $cartCon = new CartController();
+    $userCon = new UserController();
     $productCon = new ProductController();
+    $billCon = new BillController();
 
     $sub = 0;
     $total = 0;
@@ -22,45 +21,10 @@
     $lstproduct = array();
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $count = 0;
-
-        $cart = $cartCon->getCart(Session::get('userId'));
-        if($cart){
-            while($result = $cart->fetch_assoc()){
-                $count++;
-            }
+        $checkout = $billCon->Switch($_POST['order']);
+        if($checkout){
+            $alert = $checkout;
         }
-        
-        if($count > 0){
-            $name = $_POST['firstname'] . " " . $_POST['lastname'];
-            $address = $_POST['address'];
-            $phone = $_POST['phone'];
-            $email = $_POST['email'];
-            $note = $_POST['note'];
-
-            $insertBill = $billCon->insertBill(Session::get('userId'), $name, $address, $phone, $note);
-            if($insertBill){
-                $idBill = $billCon->getId(Session::get('userId'));
-            }
-
-            $cartlst = $cartCon->getCart(Session::get('userId'));
-            if($cartlst){
-                while($cart = $cartlst->fetch_assoc()){
-                    $pro = $productCon->getProductById($cart['idproduct']);
-                    if($pro){
-                        $res = $pro->fetch_assoc();
-                        $productPrice = $res['price'];
-                        $orderinfo = new OrderInfo($idBill, $cart['idproduct'], $cart['quantity'], $productPrice);
-
-                        $insertInfo = $billCon->insertInfo($orderinfo);
-                        // var_dump($productPrice);
-                    }
-                }
-            }
-
-            $deleteCart = $cartCon->clearCart(Session::get('userId'));
-        }
-        //var_dump($count);
     }
 ?>
 
@@ -139,8 +103,8 @@
                     <h6 class="coupon__link"><span class="icon_tag_alt"></span> <a href="#">Have a coupon?</a> Click
                     here to enter your code.</h6>
                     <?php
-                        if(isset($insertInfo) && isset($deleteCart)){
-                            echo '<div class="alert alert-success">Order successfully</div>';
+                        if(isset($alert)){
+                            echo $alert;
                         }
                     ?>
                 </div>
@@ -151,8 +115,6 @@
                         <h5>Billing detail</h5>
                         <div class="row">
                             <?php
-                                $userCon = new UserController();
-
                                 $getUser = $userCon->getUser(Session::get('userId'));
                                 if($getUser){
                                     $user = $getUser->fetch_assoc();
@@ -230,15 +192,12 @@
                                         <span class="top__text__right">Total</span>
                                     </li>
                                     <?php
-                                        $cartCon = new CartController();
-                                        $proCon = new ProductController();
-
                                         $cartlst = $cartCon->getCart(Session::get('userId'));
                                         if($cartlst){
                                             while($getCart = $cartlst->fetch_assoc()){
                                                 $quan++;
 
-                                                $getProduct = $proCon->getProductById($getCart['idproduct']);
+                                                $getProduct = $productCon->getProductById($getCart['idproduct']);
                                                 if($getProduct){
                                                     $product = $getProduct->fetch_assoc();
                                     ?>
@@ -256,7 +215,7 @@
                                     <li>Total <span><?php echo number_format($total); ?></span></li>
                                 </ul>
                             </div>
-                            <button type="submit" class="site-btn">Place oder</button>
+                            <button type="submit" class="site-btn" name="order" value="order">Place oder</button>
                         </div>
                     </div>
                 </div>

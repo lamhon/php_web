@@ -12,17 +12,17 @@
                         <li class="active"><a href="index.php">Home</a></li>
                         <li><a href="#">Women’s</a></li>
                         <li><a href="#">Men’s</a></li>
-                        <li><a href="index.php?page_layout=shop">Shop</a></li>
+                        <li><a href="shop.php">Shop</a></li>
                         <li><a href="#">Pages</a>
                             <ul class="dropdown">
                                 <li><a href="index.php?page_layout=product-details">Product Details</a></li>
-                                <li><a href="index.php?page_layout=shop-cart">Shop Cart</a></li>
+                                <li><a href="shop.php">Shop Cart</a></li>
                                 <li><a href="index.php?page_layout=checkout">Checkout</a></li>
-                                <li><a href="index.php?page_layout=blog-details">Blog Details</a></li>
+                                <li><a href="contact.php">Blog Details</a></li>
                             </ul>
                         </li>
                         <li><a href="index.php?page_layout=blog">Blog</a></li>
-                        <li><a href="index.php?page_layout=contact">Contact</a></li>
+                        <li><a href="contact.php">Contact</a></li>
                     </ul>
                 </nav>
             </div>
@@ -74,7 +74,6 @@
                                 <span class="icon_bag_alt"></span>
                                 <div class="tip">
                                     <?php
-                                        $cartCon = new CartController();
                                         $count = 0;
 
                                         $cart = $cartCon->getCart(Session::get('userId'));

@@ -1,16 +1,19 @@
 <?php
-	include '../controller/LoginController.php';
+	include '../controller/UserController.php';
 	include_once '../../lib/session.php';
-	
+	Session::checkUserLogin();
 ?>
 
 <?php
+	if(Session::get("userlogin") == true){
+		header('Location:index.php');
+	}
+
 	if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $loginCon = new LoginController();
-        $username = $_POST['userName'];
-        $password = md5($_POST['password']);
+        $userCon = new UserController();
+        // var_dump($_POST["login"]);
 		
-    	$login_check = $loginCon->loginUser($username, $password);
+    	$login_check = $userCon->Switch($_POST["login"]);
     }
 ?>
 
@@ -69,7 +72,7 @@
 			
 
 					<div class="container-login100-form-btn">
-						<button class="login100-form-btn" type="submit">
+						<button class="login100-form-btn" type="submit" name="login" value="login">
 							Login
 						</button>
 					</div>
@@ -81,7 +84,7 @@
 					</div>
 
 					<div class="login100-form-social flex-c-m">
-						<a href="#" class="login100-form-social-item flex-c-m bg1 m-r-5">
+						<a href="https://www.facebook.com/dialog/oauth?client_id=273797850779511&redirect_uri=" class="login100-form-social-item flex-c-m bg1 m-r-5">
 							<i class="fa fa-facebook-f" aria-hidden="true"></i>
 						</a>
 

@@ -2,7 +2,6 @@
 	include '../controller/UserController.php';
 	include_once '../../lib/session.php';
     Session::checkUserLogin();
-	
 ?>
 
 <?php
@@ -12,23 +11,7 @@
         header('Location:index.php');
     }else{
         if($_SERVER['REQUEST_METHOD'] == 'POST'){
-            $secretNumber = md5($_POST['secretNumber']);
-            $pwd = $_POST['password'];
-            $confirm = $_POST['pass'];
-            if($confirm != $pwd){
-                $alert = '<div class="alert alert-danger">Confirm password is wrong!</div>';
-            }else{
-                $checkSecret = $userCon->checkSecretNumber(Session::get('user'), $secretNumber);
-                if($checkSecret){
-                    $changePass = $userCon->changePass(Session::get('user'), md5($pwd));
-                    if($changePass){
-                        $alert = '<div class="alert alert-success">Change password success!</div>';
-                        Session::set('user', null);
-                    }
-                }else{
-                    $alert = '<div class="alert alert-danger">Your secret number is wrongq!</div>';
-                }
-            }
+            $alert = $userCon->Switch($_POST["change_password"]);
         }
     }
 ?>
@@ -79,7 +62,7 @@
 			
 
 					<div class="container-login100-form-btn">
-						<button class="login100-form-btn" type="submit">
+						<button class="login100-form-btn" type="submit" name="change_password" value="change_password">
 							Submit
 						</button>
 					</div>

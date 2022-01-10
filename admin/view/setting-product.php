@@ -5,11 +5,11 @@
 <?php
     include '../controller/CategoryController.php';
     include '../controller/ProductController.php';
-    include '../model/product.php';
 ?>
 
 <?php
-    $product = new ProductController();
+    $productCon = new ProductController();
+    $cateCon = new CategoryController();
 
     // Check id and initialize variable $id
     if(!isset($_GET['productid']) || ($_GET['productid'] == NULL )){
@@ -20,18 +20,7 @@
 
     //Button save
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $setproduct = new Product(
-                                    $_POST['productName'],
-                                    $_POST['productPrice'],
-                                    $_POST['productSale'],
-                                    $_POST['productCategory'],
-                                    $_POST['productInfo'],
-                                    $_POST['productDescript'],
-                                    $_POST['productQuantity'],
-                                    $_POST['productStt']);
-        $setproduct->setproductId($id);
-
-        $updateProduct = $product->update_product($setproduct, $_FILES);
+        $updateProduct = $productCon->Switch($_POST['update_product']);
     }
 ?>
 
@@ -161,7 +150,7 @@
                                 href="https://datatables.net">official DataTables documentation</a>.</p>
                 
                 <?php
-                    $getProduct = $product->getProduct($id);
+                    $getProduct = $productCon->getProduct($id);
                     if($getProduct){
                         while($result = $getProduct->fetch_assoc()){
 
@@ -247,7 +236,7 @@
                             <span class="input-group-text" for="inputGroupSelect01">Category</span>
                             <select class="form-control" id="inputGroupSelect01" name="productCategory">
                                 <?php
-                                    $cateName = $cate->getCategory($result['categoryid']);
+                                    $cateName = $cateCon->getCategory($result['categoryid']);
                                     if($cateName){
                                         while($categoryname = $cateName->fetch_assoc()){
                                 ?>
@@ -262,7 +251,7 @@
                                     }
                                 ?>
                                 <?php
-                                    $show = $cate->getAll_categoryByStt(1);
+                                    $show = $cateCon->getAll_categoryByStt(1);
                                     if($show){
                                         while($cateOp = $show->fetch_assoc()){
                                             if(strcmp($cateOp['categoryname'], $defaultCate) != 0){
@@ -352,7 +341,7 @@
                         </div>
 
                         <div class="input-group">
-                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="submit" name="update_product" value="update_product" class="btn btn-primary">Save</button>
                             <a class="btn btn-secondary" href="product.php">Back</a>
                         </div>
 

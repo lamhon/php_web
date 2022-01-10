@@ -4,7 +4,7 @@
 ?>
 
 <?php
-    $cate = new CategoryController();
+    $cateCon = new CategoryController();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -114,7 +114,7 @@
                                     </tfoot>
                                     <tbody>
                                         <?php
-                                            $show = $cate->getAll_category();
+                                            $show = $cateCon->getAll_category();
                                             $i = 0;
                                             if($show){
                                                 while($result = $show->fetch_assoc()){

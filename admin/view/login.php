@@ -1,14 +1,12 @@
 <?php 
-    include '../controller/LoginController.php';
+    include '../controller/UserController.php';
 ?>
 
 <?php 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $class = new LoginController();
-        $adminUser = $_POST['adminUser'];
-        $adminPass = md5($_POST['adminPass']);
+        $userCon = new UserController();
 
-        $login_check = $class->login_admin($adminUser, $adminPass);
+        $login_check = $userCon->login();
     }
 ?>
 

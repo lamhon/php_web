@@ -8,6 +8,7 @@
 ?>
 
 <?php
+    $cartCon = new CartController();
     $billCon = new BillController();
 ?>
 <!DOCTYPE html>
@@ -143,54 +144,53 @@
                     <th>Delivery status</th>
                     <th>Delivery date</th>
                 </tr>
+                <?php
+                    $lstBill = $billCon->getBillUser(Session::get('userId'));
+                    $i = 0;
+                    if($lstBill){
+                        while($bill = $lstBill->fetch_assoc()){
+                            $i++;
+                ?>
                 <tr>
-                    <?php
-                        $lstBill = $billCon->getBillUser(Session::get('userId'));
-                        $i = 0;
-                        if($lstBill){
-                            while($bill = $lstBill->fetch_assoc()){
-                                $i++;
-                    ?>
-                        <td><?php echo $i ?></td>
-                        <td><a href="order-info.php?id=<?php echo $bill['id'] ?>"><b><?php echo $bill['id'] ?></b></a></td>
-                        <td><?php echo $bill['username'] ?></td>
-                        <td><?php echo $bill['useraddress'] ?></td>
-                        <td><?php echo $bill['phone'] ?></td>
-                        <td><?php echo $bill['note'] ?></td>
-                        <td>
-                            <?php
-                                if($bill['paid'] == 0){
-                                    echo '<p style="color: red;">unpaid</p>';
-                                }else{
-                                    echo '<p style="color: green;">paid</p>';
-                                }
-                            ?>
-                        </td>
-                        <td><?php echo $bill['dateorder'] ?></td>
-                        <td>
-                            <?php
-                                if($bill['deliverystt'] == 0){
-                                    echo '<p style="color: red;">pending</p>';
-                                }else{
-                                    echo '<p style="color: green;">Being shiped</p>';
-                                }
-                            ?>
-                        </td>
-                        <td>
-                            <?php
-                                if($bill['deliverystt'] == 0){
-                                    echo '--';
-                                }else{
-                                    echo $bill['deliverydate'];
-                                }
-                            ?>
-                        </td>
-                    <?php
+                    <td><?php echo $i ?></td>
+                    <td><a href="order-info.php?id=<?php echo $bill['id'] ?>"><b><?php echo $bill['id'] ?></b></a></td>
+                    <td><?php echo $bill['username'] ?></td>
+                    <td><?php echo $bill['useraddress'] ?></td>
+                    <td><?php echo $bill['phone'] ?></td>
+                    <td><?php echo $bill['note'] ?></td>
+                    <td>
+                        <?php
+                            if($bill['paid'] == 0){
+                                echo '<p style="color: red;">unpaid</p>';
+                            }else{
+                                echo '<p style="color: green;">paid</p>';
                             }
-                        }
-                    ?>
-                    
+                        ?>
+                    </td>
+                    <td><?php echo $bill['dateorder'] ?></td>
+                    <td>
+                        <?php
+                            if($bill['deliverystt'] == 0){
+                                echo '<p style="color: red;">pending</p>';
+                            }else{
+                                echo '<p style="color: green;">Being shiped</p>';
+                            }
+                        ?>
+                    </td>
+                    <td>
+                        <?php
+                            if($bill['deliverystt'] == 0){
+                                echo '--';
+                            }else{
+                                echo $bill['deliverydate'];
+                            }
+                        ?>
+                    </td>
                 </tr>
+                <?php
+                        }
+                    }
+                ?>
             </table>
         </div>
     </div>

@@ -1,37 +1,24 @@
 <?php
-    include '../view/layouts/content/session.php';
+    include_once '../view/layouts/content/session.php';
 ?>
 
 <?php
-    include '../controller/CartController.php';
-    include '../controller/UserController.php';
-    include '../controller/MessageController.php';
-
-    include '../model/message.php';
+    include_once '../controller/UserController.php';
+    include_once '../controller/CartController.php';
 ?>
 
 <?php
+    $cartCon = new CartController();
+
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         if(Session::get('userlogin') == true){
-                // get user information and then get first name and last name
             $userCon = new UserController();
-            $messCon = new MessageController();
-            $getUser = $userCon->getUser(Session::get('userId'));
 
-            if($getUser){
-                $resUser = $getUser->fetch_assoc();
-
-                $firstname = $resUser['firstname'];
-                $lastname = $resUser['lastname'];
-                $name = $firstname . ' ' . $lastname;
-
-                $mess = new Message(Session::get('userId'), $name, $resUser['email'], $_POST['message'], 0);
-
-                $insertMess = $messCon->insertMessage($mess);
-            }
+            $insertMess = $userCon->Switch($_POST['send_message']);
         }else{
             header("Location:login.php");
         }
+        
     }
 ?>
 
@@ -132,7 +119,7 @@
                                 <?php
                                     }
                                 ?>
-                                <button type="submit" class="site-btn">Send Message</button>
+                                <button type="submit" name="send_message" value="send_message" class="site-btn">Send Message</button>
                             </form>
                         </div>
                     </div>
@@ -140,8 +127,13 @@
                 <div class="col-lg-6 col-md-6">
                     <div class="contact__map">
                         <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d48158.305462977965!2d-74.13283844036356!3d41.02757295168286!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c2e440473470d7%3A0xcaf503ca2ee57958!2sSaddle%20River%2C%20NJ%2007458%2C%20USA!5e0!3m2!1sen!2sbd!4v1575917275626!5m2!1sen!2sbd"
-                        height="780" style="border:0" allowfullscreen="">
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5504.8345448218515!2d108.05050368021328!3d12.680373183583066!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31721d7f7bf62dad%3A0x4bab59269da695d7!2zVMaw4bujbmcgxJDDoGkgQ2hp4bq_biB0aOG6r25nIEJ1w7RuIE1hIFRodeG7mXQ!5e0!3m2!1svi!2s!4v1640830700007!5m2!1svi!2s"
+                            width="600"
+                            height="450"
+                            style="border:0;"
+                            allowfullscreen=""
+                            loading="lazy">
+                        </iframe>
                     </iframe>
                 </div>
             </div>

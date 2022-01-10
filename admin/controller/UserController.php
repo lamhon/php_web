@@ -1,20 +1,18 @@
 <?php
-    include_once '../../db/dbconnect.php';
+    include_once '../model/user.php';
 ?>
 
 <?php 
     class UserController{
-        private $db;
+        private $userMo;
 
         public function __construct(){
-            $this->db = new Database();
+            $this->userMo = new User();
         }
 
-        // Get all users from db
-        public function getAll_user(){
-            $query = "SELECT * FROM tbl_useraccount ORDER BY username DESC";
-            $result = $this->db->select($query);
-            return $result;
+        public function login(){
+            $login = $this->userMo->login($_POST['adminUser'], md5($_POST['adminPass']));
+            return $login;
         }
     }
 ?>

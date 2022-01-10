@@ -1,205 +1,114 @@
 <?php
-    include_once '../../db/dbconnect.php';
-
-    use PHPMailer\PHPMailer\PHPMailer;
-    use PHPMailer\PHPMailer\Exception;
-    use PHPMailer\PHPMailer\SMTP;
-
-    require_once '../controller/PHPMailer/src/Exception.php';
-    require_once '../controller/PHPMailer/src/PHPMailer.php';
-    require_once '../controller/PHPMailer/src/SMTP.php';
+    include_once '../model/user.php';
 ?>
 
 
 <?php
     class UserController{
-        private $db;
+        private $userMo;
 
         //initialize
         public function __construct(){
-            $this->db = new Database();
+            $this->userMo = new User();
         }
-        public function getUser($id){
-            $query = "SELECT * FROM tbl_useraccount WHERE id = '$id'";
-            $result = $this->db->select($query);
-            return $result;
-        }
+    
+        public function Switch($action){
+            switch($action){
+                case "login":
+                    $username = $_POST['userName'];
+                    $password = md5($_POST['password']);
+                    return $this->userMo->loginUser($username, $password);
+                    break;
+                case "send_message":
+                    $getUser = $this->userMo->getUser(Session::get('userId'));
 
-        //Insert user
-        public function insert_user($user){
-            if($this->checkEmail($user->get_email())){
-                $alert = '<div class="alert alert-danger">Email already exist</div>';
-                return $alert;
-            }else if($this->checkPhone($user->get_phone())){
-                $alert = '<div class="alert alert-danger">Phone already exist</div>';
-                return $alert;
-            }else if($this->checkUser($user->get_username())){
-                $alert = '<div class="alert alert-danger">Username already exist</div>';
-                return $alert;
-            }else{
-                $username = mysqli_real_escape_string($this->db::$link, $user->get_username());
-                $pwd = mysqli_real_escape_string($this->db::$link, $user->get_pwd());
-                $firstname = mysqli_real_escape_string($this->db::$link, $user->get_firstname());
-                $lastname = mysqli_real_escape_string($this->db::$link, $user->get_lastname());
-                $email = mysqli_real_escape_string($this->db::$link, $user->get_email());
-                    
-                $query = "INSERT INTO tbl_useraccount(username, pwd, firstname, lastname, email, stt) VALUES ('$username', '$pwd', '$firstname', '$lastname', '$email', 1)";
-                $result = $this->db->insert($query);
-                if($result){
-                    $alert = '<div class="alert alert-success">Register successfully</div>';
-                    return $alert;
-                }else{
-                    $alert = '<div class="alert alert-danger">Register failure</div>';
-                    return $alert;
-                }
-            }
-        }
+                    if($getUser){
+                        $resUser = $getUser->fetch_assoc();
+        
+                        $firstname = $resUser['firstname'];
+                        $lastname = $resUser['lastname'];
+                        $name = $firstname . ' ' . $lastname;
 
-        public function updateInfor($user){
-            $oldEmail = $this->getUser($user->get_id())->fetch_assoc();
-            $oldEmail = $oldEmail['email'];
-            $oldPhone = $this->getUser($user->get_id())->fetch_assoc();
-            $oldPhone = $oldPhone['phone'];
-            if($this->checkEmail($user->get_email()) && $user->get_email() != $oldEmail){
-                $alert = '<div class="alert alert-danger">Email already exist</div>';
-                return $alert;
-            }else if($this->checkPhone($user->get_phone()) && $user->get_phone() != $oldPhone){
-                $alert = '<div class="alert alert-danger">Phone already exist</div>';
-                return $alert;
-            }else{
-                $id = mysqli_real_escape_string($this->db::$link, $user->get_id());
-                $firstname = mysqli_real_escape_string($this->db::$link, $user->get_firstname());
-                $lastname = mysqli_real_escape_string($this->db::$link, $user->get_lastname());
-                $sex = mysqli_real_escape_string($this->db::$link, $user->get_sex());
-                $birthday = mysqli_real_escape_string($this->db::$link, $user->get_birthday());
-                $email = mysqli_real_escape_string($this->db::$link, $user->get_email());
-                $phone = mysqli_real_escape_string($this->db::$link, $user->get_phone());
-                $address = mysqli_real_escape_string($this->db::$link, $user->get_address());
-
-                $query = "UPDATE tbl_useraccount SET firstname = '$firstname', lastname = '$lastname', sex = '$sex', birthday = '$birthday', email = '$email', phone = '$phone', uaddress = '$address' WHERE id = '$id'";
-            
-                $result = $this->db->update($query);
-                if($result){
-                    $alert = '<div class="alert alert-success">Update information successfully</div>';
-                    return $alert;
-                }else{
-                    $alert = '<div class="alert alert-danger">Update information failure</div>';
-                    return $alert;
-                }
-            }
-        }
-
-        public function checkChangePass($username, $email){
-            $query = "SELECT * FROM tbl_useraccount WHERE username = '$username' AND email = '$email'";
-            $result = $this->db->select($query);
-            if($result){
-                return $result;
-            }else{
-                return false;
-            }
-        }
-
-        public function checkSecretNumber($username, $secretNumber){
-            $query = "SELECT * FROM tbl_useraccount WHERE username = '$username' AND secretnumber = '$secretNumber'";
-            $result = $this->db->select($query);
-            if($result){
-                return $result;
-            }else{
-                return false;
-            }
-        }
-
-        public function changePass($username, $password){
-            $query = "UPDATE tbl_useraccount SET pwd = '$password', secretnumber = null WHERE username = '$username'";
-            $updateQuery = $this->db->update($query);
-            if($updateQuery){
-                return true;
-            }else{
-                return true;
-            }
-        }
-
-        public function sendSecretNumber($email, $name){
-            $secretNumber = rand(100000,999999);
-
-            $mail = new PHPMailer(true);
-            try {
-                //$mail->SMTPDebug = SMTP::DEBUG_SERVER;
-                $mail->isSMTP();
-                // $mail->Host = 'smtp.gmail.com';
-                $mail->Host = "smtp.gmail.com"; 
-                $mail->SMTPAuth = true;
-                $mail->Username = 'hoangtunglamltd@gmail.com';
-                $mail->Password = 'ohgeeeaktvgylmyy';
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 587;
-
-                $mail->setFrom('hoangtunglamltd@gmail.com', 'Sor Web');
-                $mail->addAddress($email, $name);
-                $mail->isHTML(true);
-                $mail->Subject = 'Change your password';
-                $content = '<p>'.'Your secret number is: '.$secretNumber.'</p>';
-                $mail->Body = $content;
-
-                // $mail->SMTPOptions = [
-                //     'ssl' => [
-                //         'verify_peer' => false,
-                //         'verify_peer_name' => false,
-                //         'allow_self_signed' => true,
-                //     ]
-                // ];
-
-                if($mail->send()){
-                    $hashSecret = md5($secretNumber);
-                    $query = "UPDATE tbl_useraccount SET secretnumber = '$hashSecret' WHERE email = '$email'";
-                    $updateQuery = $this->db->update($query);
-                    if($updateQuery){
-                        return true;
+                        $insertMess = $this->userMo->insertMessage(Session::get('userId'), $name, $resUser['email'], $_POST['message']);
+                        return $insertMess;
                     }else{
-                        return true;
+                        header("Location:login.php");
                     }
-                }else{
-                    return false;
-                }
-            } catch (Exception $e) {
-                echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+                    break;
+                case "register":
+                    if(strcmp(md5($_POST['password']), md5($_POST['pass'])) != 0){
+                        $alert = '<div class="alert alert-danger">Confirm password wrong!</div>';
+                        return $alert;
+                    }else{
+                        $this->userMo->set_username($_POST['userName']);
+                        $this->userMo->set_pwd(md5($_POST['password']));
+                        $this->userMo->set_firstname($_POST['firstName']);
+                        $this->userMo->set_lastname($_POST['lastName']);
+                        $this->userMo->set_email($_POST['email']);
+                        $insertUser = $this->userMo->insert_user($this->userMo);
+                        return $insertUser;
+                    }
+                    break;
+                case "update_profile":
+                    $this->userMo->set_firstname($_POST['userFirstname']);
+                    $this->userMo->set_lastname($_POST['userLastname']);
+                    $this->userMo->set_sex($_POST['userSex']);
+
+                    $birthday = strtotime($_POST['userBirthdayMonth'].'/'.$_POST['userBirthdayDay'].'/'.$_POST['userBirthdayYear']);
+                    $formatdate = date('Y-m-d', $birthday);
+                    $this->userMo->set_birthday($formatdate);
+
+                    $this->userMo->set_email($_POST['userEmail']);
+                    $this->userMo->set_phone($_POST['userPhone']);
+                    $this->userMo->set_address($_POST['userAddress']);
+                    $this->userMo->set_id(Session::get('userId'));
+
+                    return $updateInfo = $this->userMo->updateInfor($this->userMo);
+                    break;
+                case "forgot_password":
+                    $username = $_POST['userName'];
+                    $email = $_POST['email'];
+
+                    $check = $this->userMo->checkChangePass($username, $email);
+                    if($check != false){
+                        $profile = $check->fetch_assoc();
+                        $name = $profile['firstname'].' '.$profile['lastname'];
+
+                        $send = $this->userMo->sendSecretNumber($email, $name);
+                        if($send){
+                            Session::set('user', $username);
+                            header('Location:change-password.php');
+                        }
+                    }else{
+                        $alert = '<div class="alert alert-danger">Wrong information</div>';
+                    }
+                    break;
+                case "change_password":
+                    $secretNumber = md5($_POST['secretNumber']);
+                    $pwd = $_POST['password'];
+                    $confirm = $_POST['pass'];
+                    if($confirm != $pwd){
+                        $alert = '<div class="alert alert-danger">Confirm password is wrong!</div>';
+                    }else{
+                        $checkSecret = $this->userMo->checkSecretNumber(Session::get('user'), $secretNumber);
+                        if($checkSecret){
+                            $changePass = $this->userMo->changePass(Session::get('user'), md5($pwd));
+                            if($changePass){
+                                $alert = '<div class="alert alert-success">Change password success!</div>';
+                                Session::set('user', null);
+                            }
+                        }else{
+                            $alert = '<div class="alert alert-danger">Your secret number is wrongq!</div>';
+                        }
+                    }
+                    return $alert;
+                    break;
             }
         }
 
-        private function checkEmail($email){
-            $email = mysqli_real_escape_string($this->db::$link, $email);  //Not change
-
-            $query = "SELECT * FROM tbl_useraccount WHERE email  = '$email'";
-            $result = $this->db->select($query);
-            if($result){
-                return true;
-            }else{
-                return false;
-            }
-        }
-
-        private function checkPhone($phone){
-            $phone = mysqli_real_escape_string($this->db::$link, $phone);  //Not change
-
-            $query = "SELECT * FROM tbl_useraccount WHERE phone  = '$phone'";
-            $result = $this->db->select($query);
-            if($result){
-                return true;
-            }else{
-                return false;
-            }
-        }
-
-        private function checkUser($username){
-            $username = mysqli_real_escape_string($this->db::$link, $username);
-
-            $query = "SELECT * FROM tbl_useraccount WHERE username  = '$username'";
-            $result = $this->db->select($query);
-            if($result){
-                return true;
-            }else{
-                return false;
-            }
+        public function getUser($id){
+            $user = $this->userMo->getUser($id);
+            return $user;
         }
     }
 ?>

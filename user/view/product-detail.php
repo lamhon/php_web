@@ -1,57 +1,56 @@
 <?php
-    include '../view/layouts/content/session.php';
-
-    include '../controller/ProductController.php';
-    include '../controller/CategoryController.php';
-    include '../controller/CartController.php';
-    include '../controller/UserController.php';
-
-    include '../model/cart.php';
+    include_once '../controller/CartController.php';
+    include_once '../controller/ProductController.php';
+    include_once '../controller/UserController.php';
 ?>
 
 <?php
-    $productCon = new ProductController();
-    $cartCon = new CartController();
-    $cateCon = new CategoryController();
-    $userCon = new UserController();
+    include '../view/layouts/content/session.php';
+?>
 
+<?php
     if(!isset($_GET['productid']) || ($_GET['productid'] == NULL )){
         echo "<script>window.location = 'index.php'</script>";
     }else{
         $id = $_GET['productid'];
     }
+?>
 
+<?php
+    $cartCon = new CartController();
+    $productCon = new ProductController();
+    $userCon = new UserController();
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $quantity = $_POST['quantity'];
+        // $quantity = $_POST['quantity'];
 
-        if(Session::get('userlogin') == true){
-            $cart = new Cart(Session::get('userId'), $_GET['productid'], $quantity, $_POST['quantity']);
-            $insert = $cartCon->insertItem($cart);
-            if($insert){
-                header('Location:shop-cart.php');
-            }
-        }else{
-            $cart = new Cart(0, $_GET['productid'], $quantity);
+        // if(Session::get('userlogin') == true){
+        //     $cart = new Cart(Session::get('userId'), $_GET['productid'], $quantity, $_POST['quantity']);
+        //     $insert = $cartCon->insertItem($cart);
+        //     if($insert){
+        //         header('Location:shop-cart.php');
+        //     }
+        // }else{
+        //     $cart = new Cart(0, $_GET['productid'], $quantity);
 
-            if(Session::get("cart-item") != null){
-                $cartlst = Session::get('cart-item');
-                if(array_key_exists($_GET['productid'], $cartlst['cart'])){
-                    $getQuan = $cartlst[$_GET['productid']]->get_quantity();
-                    $cartlst[$_GET['productid']]->set_quantity($getQuan + $quantity);
+        //     if(Session::get("cart-item") != null){
+        //         $cartlst = Session::get('cart-item');
+        //         if(array_key_exists($_GET['productid'], $cartlst['cart'])){
+        //             $getQuan = $cartlst[$_GET['productid']]->get_quantity();
+        //             $cartlst[$_GET['productid']]->set_quantity($getQuan + $quantity);
 
-                    Session::set('cart-item', $cartlst);
-                }else{
-                    $cartlst[$_GET['productid']] = $cart;
-                    Session::set('cart-item', $cartlst);
-                }
-            }else{
-                $cartlst = array();
-                $cartlst[$_GET['productid']] = $cart;
-                Session::set('cart-item', $cartlst);
+        //             Session::set('cart-item', $cartlst);
+        //         }else{
+        //             $cartlst[$_GET['productid']] = $cart;
+        //             Session::set('cart-item', $cartlst);
+        //         }
+        //     }else{
+        //         $cartlst = array();
+        //         $cartlst[$_GET['productid']] = $cart;
+        //         Session::set('cart-item', $cartlst);
                 
-            }
-            header('Location:shop-cart.php');
-        }
+        //     }
+        //     header('Location:shop-cart.php');
+        // }
         
     }
 ?>
@@ -247,7 +246,7 @@
                         <a href="index.php"><i class="fa fa-home"></i> Home</a>
                         <a href="#">
                             <?php
-                                $getCate = $cateCon->getCategory($result['categoryid']);
+                                $getCate = $productCon->getCategory($result['categoryid']);
                                 if($getCate){
                                     while($cateName = $getCate->fetch_assoc()){
                                         $name = $cateName['categoryname'];
@@ -284,7 +283,7 @@
                                 <?php echo $result['productname'] ?>
                                 <span>
                                     <?php
-                                        $getCate = $cateCon->getCategory($result['categoryid']);
+                                        $getCate = $productCon->getCategory($result['categoryid']);
                                         if($getCate){
                                             while($cateName = $getCate->fetch_assoc()){
                                                 $name = $cateName['categoryname'];

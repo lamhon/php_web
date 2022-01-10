@@ -1,103 +1,47 @@
 <?php
-    include_once '../../db/dbconnect.php';
+    include_once '../model/category.php';
 ?>
 
 <?php
     class CategoryController{
-        private $db;
+        private $cateMo;
 
         //initialize
         public function __construct(){
-            $this->db = new Database();
+            $this->cateMo = new Category();
         }
 
+        public function Switch($action){
+            switch ($action){
+                case "add_cate":
+                    $cateName = $_POST['cateName'];
+                    $insertCate = $this->cateMo->insert_category($cateName);
+                    return $insertCate;
+                    break;
+                case "update_cate":
+                    $id = $_GET['cateid'];
+                    $cateName = $_POST['cateName'];
+                    $cateStt = $_POST['cateStt'];
 
-        // Add new Category function
-        public function insert_category($categoryName){
-            if($this->checkExist($categoryName)){
-                $alert = '<div class="alert alert-danger">Category name already exist</div>';
-                return $alert;
-            }else{
-                $categoryName = mysqli_real_escape_string($this->db::$link, $categoryName);
-
-                if(empty($categoryName)){
-                    $alert = '<div class="alert alert-danger">Category name must be not empty</div>';
-                    return $alert;
-                }else{
-                    $query = "INSERT INTO tbl_category(categoryname, stt) VALUES ('$categoryName', 1)";
-                    $result = $this->db->insert($query);
-                    if($result){
-                        $alert = '<div class="alert alert-success">Insert new category successfully</div>';
-                        return $alert;
-                    }else{
-                        $alert = '<div class="alert alert-danger">Insert new category failure</div>';
-                        return $alert;
-                    }
-                }
+                    $updateCate = $this->cateMo->update_category($id, $cateName, $cateStt);
+                    return $updateCate;
+                    break;
             }
         }
 
-        // Get all category from db
         public function getAll_category(){
-            $query = "SELECT * FROM tbl_category ORDER BY categoryname DESC";
-            $result = $this->db->select($query);
-            return $result;
+            $allCate = $this->cateMo->getAll_category();
+            return $allCate;
         }
 
-        // Get all category from db by stt
         public function getAll_categoryByStt($stt){
-            $query = "SELECT * FROM tbl_category WHERE stt = '$stt' ORDER BY categoryname DESC";
-            $result = $this->db->select($query);
-            return $result;
+            $getCate = $this->cateMo->getAll_categoryByStt($stt);
+            return $getCate;
         }
 
-
-        // Get category by id
         public function getCategory($id){
-            $query = "SELECT * FROM tbl_category WHERE id = '$id'";
-            $result = $this->db->select($query);
-            return $result;
-        }
-
-        //Update value category
-        public function update_category($cateId, $categoryName, $cateStt){
-            $oldCateName = $this->getCategory($cateId)->fetch_assoc()['categoryname'];
-
-            $cateId = mysqli_real_escape_string($this->db::$link, $cateId);
-            $categoryName = mysqli_real_escape_string($this->db::$link, $categoryName);
-            $cateStt = mysqli_real_escape_string($this->db::$link, $cateStt);
-
-            if(empty($categoryName)){
-                $alert = '<div class="alert alert-danger">Category name must be not empty</div>';
-                return $alert;
-            }else{
-                if($this->checkExist($categoryName) && $categoryName != $oldCateName){
-                    $alert = '<div class="alert alert-danger">Category name already exist</div>';
-                    return $alert;
-                }else{
-                    $query = "UPDATE tbl_category SET categoryname = '$categoryName', stt = '$cateStt' WHERE id = '$cateId'";
-                    $result = $this->db->update($query);
-                    if($result){
-                        $alert = '<div class="alert alert-success">Update category successfully</div>';
-                        return $alert;
-                    }else{
-                        $alert = '<div class="alert alert-danger">Update category failure</div>';
-                        return $alert;
-                    }
-                }
-            }
-        }
-
-        private function checkExist($categoryName){
-            $categoryName = mysqli_real_escape_string($this->db::$link, $categoryName);  //Not change
-
-            $query = "SELECT * FROM tbl_category WHERE categoryname = '$categoryName'";
-            $result = $this->db->select($query);
-            if($result){
-                return true;
-            }else{
-                return false;
-            }
+            $getCate = $this->cateMo->getCategory($id);
+            return $getCate;
         }
     }
 ?>

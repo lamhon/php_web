@@ -6,9 +6,10 @@
     include '../controller/ProductController.php';
 ?>
 <?php
-    $product = new ProductController();
-    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit'])){
-        $insert_product = $product->insert_product($_POST, $_FILES);
+    $productCon = new ProductController();
+    if($_SERVER['REQUEST_METHOD'] == 'POST'){
+        $insert_product = $productCon->Switch($_POST['add_product']);
+        // var_dump($_POST['productSale']);
     }
 ?>
 
@@ -186,8 +187,8 @@
                             <select class="form-control" id="inputGroupSelect01" name="productCategory" required>
                                 <option value="">--Select category--</option>
                                 <?php
-                                    $cate = new CategoryController();
-                                    $cateList = $cate->getAll_categoryByStt(1);
+                                    $cateCon = new CategoryController();
+                                    $cateList = $cateCon->getAll_categoryByStt(1);
                                     if($cateList){
                                         while($result = $cateList->fetch_assoc()){
                                 ?>
@@ -204,7 +205,7 @@
                             <textarea 
                                 class="form-control"  
                                 aria-label="With textarea" 
-                                aria-describedby="basic-addon2" 
+                                aria-describedby="basic-addon2"
                                 id="infoClipboard"
                                 name="productInformation"></textarea>
                         </div>
@@ -240,7 +241,7 @@
                         </div>
 
                         <div class="input-group">
-                            <button type="submit" name="submit" class="btn btn-primary">Add</button>
+                            <button type="submit" name="add_product" value="add_product" class="btn btn-primary">Add</button>
                             <a href="product.php" class="btn btn-secondary">Back</a>
                         </div>
                     </div>

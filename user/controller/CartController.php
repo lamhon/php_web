@@ -1,104 +1,137 @@
 <?php
-    include_once '../../db/dbconnect.php';
+    include_once '../model/cart.php';
+    include_once '../model/product.php';
 ?>
 
 <?php
     class CartController{
-        private $db;
+        private $cartMo;
+        private $productMo;
 
         public function __construct(){
-            $this->db = new Database();
+            $this->cartMo = new Cart();
+            $this->productMo = new Product();
         }
 
-        public function getCart($idUser){
-            $query = "SELECT * FROM tbl_Cart WHERE iduser = '$idUser'";
-            $result = $this->db->select($query);
-            return $result;
-        }
-
-        public function insertItem($cart){
-            $iduser = $cart->get_idUser();
-            $idproduct = $cart->get_idProduct();
-            $quantity = $cart->get_quantity();
+        public function Switch($action){
+            switch($action){
+                case "add-cart":
+                    if(Session::get('userlogin') == true){
+                        $id = $_GET['add-cart'];
             
-            $check = $this->checkProduct($idproduct, $iduser);
-            if($check > 0){
-                $quantity = $check + 1;
-    
-                $query = "UPDATE tbl_cart SET quantity = '$quantity' WHERE iduser = '$iduser' AND idproduct = '$idproduct'";
-    
-                $result = $this->db->update($query);
-                if($result){
-                    header("Location:shop-cart.php");
-                }else{
-                    header("Location:index.php");
-                }
-                
-            }else{
-                $query = "INSERT INTO tbl_cart(iduser, idproduct, quantity) VALUES ('$iduser', '$idproduct', '$quantity')";
+                        $productRes = $this->productMo->getProductById($id);
+                        if($productRes){
+                            $res = $productRes->fetch_assoc();
 
-                $result = $this->db->insert($query);
-                if($result){
-                    header("Location:shop-cart.php");
-                }else{
-                    header("Location:index.php");
-                }
+                            $this->cartMo->set_idUser(Session::get('userId'));
+                            $this->cartMo->set_idProduct($id);
+                            $this->cartMo->set_quantity(1);
+
+                            $this->cartMo->insertItem($this->cartMo);
+                            
+                        }
+                    }else{
+                        $id = $_GET['add-cart'];
+
+                        $this->cartMo->set_idUser(0);
+                        $this->cartMo->set_idProduct($id);
+                        $this->cartMo->set_quantity(1);
+            
+                        if(!empty($_SESSION["cart-item"])){
+                            $cartlst = Session::get('cart-item');
+                            if(array_key_exists($id, $cartlst['cart'])){
+                                $quantity = $cartlst[$id]->get_quantity();
+                                $cartlst[$id]->set_quantity($quantity + 1);
+            
+                                Session::set('cart-item', $cartlst);
+                            }else{
+                                $cartlst[$id] = $cart;
+                                Session::set('cart-item', $cartlst);
+                            }
+                        }else{
+                            $cartlst = array();
+                            $cartlst[$id] = $this->cartMo;
+                            Session::set('cart-item', $cartlst);
+                            
+                        }
+                        header('Location:shop-cart.php');
+                    }
+                    break;
+                case "update_cart":
+                    if(Session::get('userlogin') == true){
+                        $cartlst = $this->cartMo->getCart(Session::get('userId'));
+            
+                        if($cartlst){
+                            while($result = $cartlst->fetch_assoc()){
+                                $idQuan = "quantity".$result["idproduct"];
+            
+                                $this->cartMo->set_idUser(Session::get('userId'));
+                                $this->cartMo->set_idProduct($result['idproduct']);
+                                $this->cartMo->set_quantity($_POST[$idQuan]);
+                                
+                                if($_POST[$idQuan] > 0){
+                                    $this->cartMo->updateItem($this->cartMo);
+                                }else{
+                                    $this->cartMo->deleteItem($this->cartMo);
+                                }
+                            }
+                        }
+                    }else{
+                        $cartlst = Session::get('cart-item');
+            
+                        foreach($cartlst as $product){
+                            $idQuan = "quantity".$product->get_idProduct();
+            
+                            if($_POST[$idQuan] > 0){
+                                $product->set_quantity($_POST[$idQuan]);
+                            }else{
+                                unset($cartlst[$product->get_idProduct()]);
+                                Session::set('cart-item', $cartlst);
+                            }
+                        }
+                    }
+                    break;
+                case "checkout":
+                    $check = true;
+                    $cartList = $this->cartMo->getCart(Session::get('userId'));
+                    if(Session::get('userlogin') == true){
+                        if($cartList){
+                            while($cart = $cartList->fetch_assoc()){
+                                $product = $this->productMo->getProductById($cart['idproduct']);
+                                if($product){
+                                    $getProduct = $product->fetch_assoc();
+                                    if($cart['quantity'] > $getProduct['quantity']){
+                                        $check = false;
+                                    }
+                                }
+                            }
+                            return $check;
+                        }
+                    }else{
+                        header('Location:login.php');
+                    }
+                    break;
+                case "remove":
+                    if(Session::get('userlogin') == true){
+                        $this->cartMo->set_idUser(Session::get('userId'));
+                        $this->cartMo->set_idProduct($_GET['remove']);
+
+                        $this->cartMo->deleteItem($this->cartMo);
+                    }else{
+                        $cartlst = Session::get('cart-item');
+            
+                        unset($cartlst[$_GET['remove']]);
+            
+                        Session::set('cart-item', $cartlst);
+                        header('Location:shop-cart.php');
+                    }
+                    break;
             }
         }
 
-        public function updateItem($cart){
-            $iduser = $cart->get_idUser();
-            $idproduct = $cart->get_idProduct();
-            $quantity = $cart->get_quantity();
-
-            $query = "UPDATE tbl_cart SET quantity = '$quantity' WHERE iduser = '$iduser' AND idproduct = '$idproduct'";
-        
-            $result = $this->db->update($query);
-
-            if($result){
-                header('Location:shop-cart.php');
-            }
-        }
-
-        public function deleteItem($cart){
-            $iduser = $cart->get_idUser();
-            $idproduct = $cart->get_idProduct();
-
-            $query = "DELETE FROM tbl_cart WHERE iduser = '$iduser' AND idproduct = '$idproduct'";
-
-            $result = $this->db->delete($query);
-            if($result){
-                header('Location:shop-cart.php');
-            }
-        }
-
-        public function clearCart($userid){
-            $query = "DELETE FROM tbl_cart WHERE iduser = '$userid'";
-
-            $result = $this->db->delete($query);
-            if($result){
-                return true;
-            }else{
-                return false;
-            }
-        }
-
-        public function checkProduct($idproduct, $iduser){
-            $idproduct = mysqli_real_escape_string($this->db::$link, $idproduct);
-            $iduser = mysqli_real_escape_string($this->db::$link, $iduser);
-
-            $query = "SELECT * FROM tbl_Cart WHERE idproduct = '$idproduct' AND iduser = '$iduser'";
-            $result = $this->db->select($query);
-            if($result){
-                $result = $result->fetch_assoc();
-                if($result['quantity'] > 0){
-                    return $result['quantity'];
-                }else{
-                    return 0;
-                }
-            }else{
-                return 0;
-            }  
+        public function getCart($userId){
+            $cart = $this->cartMo->getCart($userId);
+            return $cart;
         }
     }
 ?>

@@ -101,8 +101,8 @@
                             <div class="table-responsive">
                                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                                     <?php
-                                        $product = new ProductController();
-                                        $cate = new CategoryController();
+                                        $productCon = new ProductController();
+                                        $cateCon = new CategoryController();
                                     ?>
                                     <thead>
                                         <tr>
@@ -134,7 +134,7 @@
                                     </tfoot>
                                     <tbody>
                                         <?php 
-                                            $show = $product->getAll_product();
+                                            $show = $productCon->getAll_product();
                                             $i = 0;
                                             if($show){
                                                 while($result = $show->fetch_assoc()){
@@ -148,7 +148,7 @@
                                             <td><?php echo intval($result['sale']) ?>%</td>
                                             <td>
                                                 <?php 
-                                                    $cateName = $cate->getCategory($result['categoryid']);
+                                                    $cateName = $cateCon->getCategory($result['categoryid']);
                                                     if($cateName){
                                                         while($categoryname = $cateName->fetch_assoc()){
                                                             echo $categoryname['categoryname'];

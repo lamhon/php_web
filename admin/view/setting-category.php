@@ -7,7 +7,7 @@
 ?>
 
 <?php
-    $cate = new CategoryController();
+    $cateCon = new CategoryController();
     // Check id and initialize variable $id
     if(!isset($_GET['cateid']) || ($_GET['cateid'] == NULL )){
         echo "<script>window.location = 'category.php'</script>";
@@ -17,10 +17,7 @@
 
     //Button save
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $cateName = $_POST['cateName'];
-        $cateStt = $_POST['cateStt'];
-
-        $updateCate = $cate->update_category($id, $cateName, $cateStt);
+        $updateCate = $cateCon->Switch($_POST['update_cate']);
     }
 ?>
 
@@ -98,7 +95,7 @@
                             For more information about DataTables, please visit the <a target="_blank"
                                 href="https://datatables.net">official DataTables documentation</a>.</p>
                 <?php 
-                    $getCate = $cate->getCategory($id);
+                    $getCate = $cateCon->getCategory($id);
                     if($getCate){
                         while($result = $getCate->fetch_assoc()){
                 ?>
@@ -173,7 +170,7 @@
                         </div>
 
                         <div class="input-group">
-                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="submit" class="btn btn-primary" name="update_cate" value="update_cate">Save</button>
                             <a href="category.php" class="btn btn-secondary">Back</a>
                         </div>
                         

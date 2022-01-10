@@ -9,8 +9,9 @@
 ?>
 
 <?php
+    $cartCon = new CartController();
     $billCon = new BillController();
-    $proCon = new ProductController();
+    $productCon = new ProductController();
 
     if(!isset($_GET['id']) || ($_GET['id'] == NULL )){
         echo "<script>window.location = 'index.php'</script>";
@@ -123,12 +124,6 @@
     
 
     <div class="container-mock">
-        <div class="filter">
-            <ul class="filter__controls">
-                <li class="active" data-filter=".profile">Profile</li>
-                <li data-filter=".order">Your order</li>
-            </ul>
-        </div>
         <div class="mix profile">
             <h5>OrderID: <b><?php echo $_GET['id']; ?></b></h5>
         </div>
@@ -150,7 +145,7 @@
                         while($bill = $lstBill->fetch_assoc()){
                             $i++;
 
-                            $getProduct = $proCon->getProductById($bill['productid']);
+                            $getProduct = $productCon->getProductById($bill['productid']);
                             $product = $getProduct->fetch_assoc();
                 ?>
                     <tr>

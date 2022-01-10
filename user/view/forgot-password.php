@@ -7,25 +7,7 @@
 <?php
     $userCon = new UserController();
 	if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $username = $_POST['userName'];
-        $email = $_POST['email'];
-
-        $check = $userCon->checkChangePass($username, $email);
-        if($check != false){
-            $profile = $check->fetch_assoc();
-            $name = $profile['firstname'].' '.$profile['lastname'];
-
-            $send = $userCon->sendSecretNumber($email, $name);
-            if($send){
-                Session::set('user', $username);
-                header('Location:change-password.php');
-                // var_dump(Session::get('user'));
-            }
-        }else{
-            $alert = '<div class="alert alert-danger">Wrong information</div>';
-        }
-
-        
+        $alert = $userCon->Switch($_POST["change_password"]);
     }
 ?>
 
@@ -69,7 +51,7 @@
 			
 
 					<div class="container-login100-form-btn">
-						<button class="login100-form-btn" type="submit">
+						<button class="login100-form-btn" type="submit" name="change_password" value="change_password">
 							Submit
 						</button>
 					</div>

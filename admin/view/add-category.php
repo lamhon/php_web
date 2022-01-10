@@ -4,11 +4,11 @@
 ?>
 
 <?php
-    $cate = new CategoryController();
+    $cateCon = new CategoryController();
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
         $cateName = $_POST['cateName'];
 
-        $insertCate = $cate->insert_category($cateName);
+        $insertCate = $cateCon->Switch($_POST['add_cate']);
     }
 ?>
 <!DOCTYPE html>
@@ -104,7 +104,7 @@
                         </div>
 
                         <div class="input-group">
-                            <button class="btn btn-primary">Add</button>
+                            <button class="btn btn-primary" type="submit" name="add_cate" value="add_cate">Add</button>
                             <a href="category.php" class="btn btn-secondary">Back</a>
                         </div>
                     </div>

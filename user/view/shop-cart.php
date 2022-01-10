@@ -1,12 +1,10 @@
 <?php 
-    include '../controller/ProductController.php';
-    include '../controller/CartController.php';
-
-    include '../model/cart.php';
+    include_once '../controller/ProductController.php';
+    include_once '../controller/CartController.php';
 ?>
 
 <?php
-    include '../view/layouts/content/session.php';
+    include_once '../view/layouts/content/session.php';
 ?>
 
 <?php
@@ -17,74 +15,20 @@
     $total = 0;
 
     if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        if(Session::get('userlogin') == true){
-            $cartlst = $cartCon->getCart(Session::get('userId'));
-
-            if($cartlst){
-                while($result = $cartlst->fetch_assoc()){
-                    $idQuan = "quantity".$result["idproduct"];
-
-                    $cart = new Cart(Session::get('userId'), $result['idproduct'], $_POST[$idQuan]);
-
-                    if($_POST[$idQuan] > 0){
-                        $cartCon->updateItem($cart);
-                    }else{
-                        $cartCon->deleteItem($cart);
-                    }
-                }
-            }
-        }else{
-            $cartlst = Session::get('cart-item');
-
-            foreach($cartlst as $product){
-                $idQuan = "quantity".$product->get_idProduct();
-
-                if($_POST[$idQuan] > 0){
-                    $product->set_quantity($_POST[$idQuan]);
-                }else{
-                    unset($cartlst[$product->get_idProduct()]);
-                    Session::set('cart-item', $cartlst);
-                }
-            }
-        }
-        
+        $cartCon->Switch("update_cart");
     }
 
     if(isset($_GET['action']) && $_GET['action'] == "checkout"){
-        $cartList = $cartCon->getCart(Session::get('userId'));
-        if(Session::get('userlogin') == true){
-            if($cartList){
-                while($res = $cartList->fetch_assoc()){
-                    $product = $productCon->getProductById($res['idproduct']);
-                    if($product){
-                        while($result = $product->fetch_assoc()){
-                            if($res['quantity'] > $result['quantity']){
-                                $alert = '<div class="alert alert-danger">The number of products in stock is not enough</div>';
-                            }else{
-                                header('Location:checkout.php');
-                            }
-                        }
-                    }
-                }
-            }
+        $check = $cartCon->Switch($_GET['action']);
+        if($check){
+            header('Location:checkout.php');
         }else{
-            header('Location:login.php');
+            $alert = '<div class="alert alert-danger">The number of products in stock is not enough</div>';
         }
-        
     }
 
     if(isset($_GET['remove'])){
-        if(Session::get('userlogin') == true){
-            $cart = new Cart(Session::get('userId'), $_GET['remove'], 0);
-            $cartCon->deleteItem($cart);
-        }else{
-            $cartlst = Session::get('cart-item');
-
-            unset($cartlst[$_GET['remove']]);
-
-            Session::set('cart-item', $cartlst);
-            header('Location:shop-cart.php');
-        }
+        $remove = $cartCon->Switch("remove");
     }
 ?>
 <!DOCTYPE html>
@@ -279,14 +223,16 @@
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6">
                         <div class="cart__btn">
-                            <a href="#">Continue Shopping</a>
+                            <a href="shop.php">Continue Shopping</a>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6">
                         <div class="cart__btn update__btn">
                             <a 
                                 href="javascript:{}"
-                                onclick="document.getElementById('my_form').submit();">
+                                onclick="document.getElementById('my_form').submit();"
+                                name="update_cart"
+                                value="update_cart">
                                 <span class="icon_loading"></span> Update cart</a>
                         </div>
                     </div>

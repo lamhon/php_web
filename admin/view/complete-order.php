@@ -8,16 +8,6 @@
 
 <?php
     $orderCon = new OrderController();
-
-    if(isset($_GET['delivered'])){
-        $checkid = $orderCon->checkOrderid($_GET['delivered']);
-        if($checkid){
-            $successOrder = $orderCon->updateDeliveryDate($_GET['delivered']);
-            if($successOrder){
-                header('Location:confirm-order.php');
-            }
-        }
-    }
 ?>
 
 <!DOCTYPE html>

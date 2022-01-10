@@ -1,4 +1,8 @@
 <?php
+    include_once '../../db/dbconnect.php';
+?>
+
+<?php
     class OrderInfo{
         private $id;
         private $orderid;
@@ -7,11 +11,10 @@
         private $price;
         private $feedback;
 
-        public function __construct($orderid, $productid, $quantity, $price){
-            $this->orderid = $orderid;
-            $this->productid = $productid;
-            $this->quantity = $quantity;
-            $this->price = $price;
+        private $db;
+
+        public function __construct(){
+            $this->db = new Database();
         }
 
         //get method
@@ -58,6 +61,30 @@
 
         public function set_feedback($feedback){
             $this->feedback = $feedback;
+        }
+
+        //------Control------//
+        public function insertInfo($orderid, $productid, $quantity, $price){
+            $query = "INSERT INTO tbl_orderinfo(orderid, productid, quantity, price) VALUES ($orderid, $productid, $quantity, $price)";
+        
+            $result = $this->db->insert($query);
+            if($result){
+                return true;
+            }else{
+                return false;
+            }
+        }
+
+        public function getBillInfo($billid){
+            $query = "SELECT * FROM tbl_orderinfo WHERE orderid = $billid";
+            $result = $this->db->select($query);
+            return $result;
+        }
+
+        public function getProductRate($billid){
+            $query = "SELECT * FROM tbl_orderinfo WHERE orderid = $billid AND feedback = 0";
+            $result = $this->db->select($query);
+            return $result;
         }
     }
 ?>

@@ -4,15 +4,24 @@
 
 <?php
     include '../controller/OrderController.php';
+    include '../controller/ProductController.php';
 ?>
 
 <?php
     $orderCon = new OrderController();
+    $productCon = new ProductController();
 
     if(isset($_GET['confirm'])){
         $checkid = $orderCon->checkOrderid($_GET['confirm']);
         if($checkid){
             $confirmOrder = $orderCon->changeDeliveryStt($_GET['confirm'], 1);
+            $infolst = $orderCon->getOrderInfo($_GET['confirm']);
+            if($infolst){
+                while($info = $infolst->fetch_assoc()){
+                    $productQuan = $productCon->getQuantity($info['productid']);
+                    $update = $productCon->updateQuantity($info['productid'], $productQuan - $info['quantity']);
+                }
+            }
             if($confirmOrder){
                 header('Location:pending-order.php');
             }

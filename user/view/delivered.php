@@ -8,6 +8,7 @@
 ?>
 
 <?php
+    $cartCon = new CartController();
     $billCon = new BillController();
 ?>
 <!DOCTYPE html>
@@ -143,40 +144,41 @@
                     <th>Delivery date</th>
                     <th>Feedback</th>
                 </tr>
-                <tr>
-                    <?php
-                        $lstBill = $billCon->getBillUser(Session::get('userId'));
-                        $i = 0;
-                        if($lstBill){
-                            while($bill = $lstBill->fetch_assoc()){
-                                if($bill['deliverystt'] == 1 && $bill['deliverydate'] != null){
+                <?php
+                    $lstBill = $billCon->getBillUser(Session::get('userId'));
+                    $i = 0;
+                    if($lstBill){
+                        while($bill = $lstBill->fetch_assoc()){
+                            if($bill['deliverystt'] == 1 && $bill['deliverydate'] != null){
+                                if($billCon->checkFeedback($bill['id'])){
                                     $i++;
-                    ?>
-                        <td><?php echo $i ?></td>
-                        <td><a href="order-info.php?id=<?php echo $bill['id'] ?>"><b><?php echo $bill['id'] ?></b></a></td>
-                        <td><?php echo $bill['username'] ?></td>
-                        <td><?php echo $bill['useraddress'] ?></td>
-                        <td><?php echo $bill['phone'] ?></td>
-                        <td><?php echo $bill['note'] ?></td>
-                        <td>
-                            <?php
-                                if($bill['paid'] == 0){
-                                    echo '<p style="color: red;">unpaid</p>';
-                                }else{
-                                    echo '<p style="color: green;">paid</p>';
-                                }
-                            ?>
-                        </td>
-                        <td><?php echo $bill['dateorder'] ?></td>
-                        <td><?php echo $bill['deliverydate'] ?></td>
-                        <td><a href="feedback.php?ratebill=<?php echo $bill['id'] ?>" class="btn btn-success">Rate</a></td>
-                    <?php
+                ?>
+                <tr>
+                    <td><?php echo $i ?></td>
+                    <td><a href="order-info.php?id=<?php echo $bill['id'] ?>"><b><?php echo $bill['id'] ?></b></a></td>
+                    <td><?php echo $bill['username'] ?></td>
+                    <td><?php echo $bill['useraddress'] ?></td>
+                    <td><?php echo $bill['phone'] ?></td>
+                    <td><?php echo $bill['note'] ?></td>
+                    <td>
+                        <?php
+                            if($bill['paid'] == 0){
+                                echo '<p style="color: red;">unpaid</p>';
+                            }else{
+                                echo '<p style="color: green;">paid</p>';
+                            }
+                        ?>
+                    </td>
+                    <td><?php echo $bill['dateorder'] ?></td>
+                    <td><?php echo $bill['deliverydate'] ?></td>
+                    <td><a href="feedback.php?ratebill=<?php echo $bill['id'] ?>" class="btn btn-success">Rate</a></td>
+                </tr>
+                <?php
                                 }
                             }
                         }
-                    ?>
-                    
-                </tr>
+                    }
+                ?>
             </table>
         </div>
     </div>
